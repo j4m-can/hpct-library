@@ -171,6 +171,7 @@ class Interface:
     def is_ready(self):
         """Return if the interface is ready.
         """
+
         return False
 
     def set_item(self, key, value):
@@ -195,7 +196,7 @@ class SuperInterface:
 
 
 def test(interface: Interface, name: str, value: Any):
-    """Generic inteface test function.
+    """Generic interface test function.
 
     Prints out test info. On error, any exceptions are caught and
     reported as messages. This function does not fail.
