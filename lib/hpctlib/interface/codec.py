@@ -15,11 +15,11 @@ import cryptography
 import ipaddress
 import json
 import logging
-from types import NoneType
 from typing import Any, Union
 import zlib
 
 
+NoneType = type(None)
 logger = logging.getLogger(__name__)
 
 
