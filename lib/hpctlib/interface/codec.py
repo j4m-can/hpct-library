@@ -288,6 +288,11 @@ class IPAddress(Codec):
     def _decode(self, value: str, encoding: str) -> Any:
         return ipaddress.ip_address(value)
 
+    def _encode(
+        self, value: Union[ipaddress.IPv4Address, ipaddress.IPv6Address], encoding: str
+    ) -> str:
+        return str(value)
+
     def decode(self, value: str) -> Union[ipaddress.IPv4Address, ipaddress.IPv6Address]:
         return super().decode(value)
 
@@ -303,6 +308,11 @@ class IPNetwork(Codec):
 
     def _decode(self, value: str, encoding: str) -> Any:
         return ipaddress.ip_network(value)
+
+    def _encode(
+        self, value: Union[ipaddress.IPv4Network, ipaddress.IPv6Network], encoding: str
+    ) -> str:
+        return str(value)
 
     def decode(self, value: str) -> Union[ipaddress.IPv4Network, ipaddress.IPv6Network]:
         return super().decode(value)
