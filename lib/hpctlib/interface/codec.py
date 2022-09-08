@@ -170,8 +170,7 @@ class Codec:
         return value
 
     def get_doc(self) -> dict:
-        """Generate and return a dictionary describing the codec.
-        """
+        """Generate and return a dictionary describing the codec."""
 
         doc = (self.__doc__ or "").strip()
         d = {
@@ -184,8 +183,7 @@ class Codec:
 
 
 class Blob(Codec):
-    """Blob (arbitrary encodable object).
-    """
+    """Blob (arbitrary encodable object)."""
 
     codec_types = None
     encoding = "zlib"
@@ -198,8 +196,7 @@ class Blob(Codec):
 
 
 class Boolean(Codec):
-    """Boolean: True, False.
-    """
+    """Boolean: True, False."""
 
     codec_types = [bool]
     encoding = "string"
@@ -212,8 +209,7 @@ class Boolean(Codec):
 
 
 class Dict(Codec):
-    """Dictionary.
-    """
+    """Dictionary."""
 
     codec_types = [dict]
     encoding = "string"
@@ -271,8 +267,7 @@ class Float(Codec):
 
 
 class Integer(Codec):
-    """Integer.
-    """
+    """Integer."""
 
     codec_types = [int]
     encoding = "string"
@@ -285,8 +280,7 @@ class Integer(Codec):
 
 
 class IPAddress(Codec):
-    """IP address: IPv4Address, IPv6Address.
-    """
+    """IP address: IPv4Address, IPv6Address."""
 
     codec_types = [ipaddress.IPv4Address, ipaddress.IPv6Address]
     encoding = "string"
@@ -302,8 +296,7 @@ class IPAddress(Codec):
 
 
 class IPNetwork(Codec):
-    """IP network: IPv4Network, IPv6Network.
-    """
+    """IP network: IPv4Network, IPv6Network."""
 
     codec_types = [ipaddress.IPv4Network, ipaddress.IPv6Network]
     encoding = "string"
@@ -319,8 +312,7 @@ class IPNetwork(Codec):
 
 
 class Noop(Codec):
-    """Noop / no change.
-    """
+    """Noop / no change."""
 
     encoding = "asis"
 
@@ -332,8 +324,7 @@ class Noop(Codec):
 
 
 class String(Codec):
-    """String codec (noop).
-    """
+    """String codec (noop)."""
 
     encoding = "asis"
 
@@ -345,6 +336,6 @@ class String(Codec):
 
 
 class Ready(Boolean):
-    """Convert ready status: True, False.
-    """
+    """Convert ready status: True, False."""
+
     pass
