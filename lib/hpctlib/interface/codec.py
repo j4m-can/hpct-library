@@ -233,12 +233,12 @@ class Fernet(Blob):
     def __init__(self, keyfile):
         self.keyfile = keyfile
 
-    def _decode(self, value: str) -> bytes:
+    def _decode(self, value: str, encoding: str) -> bytes:
         f = cryptography.Fernet(open(self.keyfile, "rt").read())
         value = f.decrypt(value.decode("utf-8"))
         return value
 
-    def _encode(self, value: bytes) -> str:
+    def _encode(self, value: bytes, encoding: str) -> str:
         f = cryptography.Fernet(open(self.keyfile, "rt").read())
         value = f.encrypt(value).encode("utf-8")
         return value
@@ -285,7 +285,7 @@ class IPAddress(Codec):
     codec_types = [ipaddress.IPv4Address, ipaddress.IPv6Address]
     encoding = "string"
 
-    def _decode(self, value: str) -> Any:
+    def _decode(self, value: str, encoding: str) -> Any:
         return ipaddress.ip_address(value)
 
     def decode(self, value: str) -> Union[ipaddress.IPv4Address, ipaddress.IPv6Address]:
@@ -301,7 +301,7 @@ class IPNetwork(Codec):
     codec_types = [ipaddress.IPv4Network, ipaddress.IPv6Network]
     encoding = "string"
 
-    def _decode(self, value: str) -> Any:
+    def _decode(self, value: str, encoding: str) -> Any:
         return ipaddress.ip_network(value)
 
     def decode(self, value: str) -> Union[ipaddress.IPv4Network, ipaddress.IPv6Network]:
