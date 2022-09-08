@@ -377,7 +377,7 @@ class ServiceCharm(CharmBase):
         if key not in self._stored.service_syncs:
             self.service_set_sync_status(key, status)
 
-    #@log_enter_exit()
+    @log_enter_exit()
     def service_install(self, event):
         """Install.
 
@@ -433,7 +433,7 @@ class ServiceCharm(CharmBase):
         timestamp = timestamp or get_timestamp()
         self._stored.service_updated = [timestamp, what]
 
-    #@log_enter_exit()
+    @log_enter_exit()
     def service_set_stale(self, state):
         """Set service stale state.
 
