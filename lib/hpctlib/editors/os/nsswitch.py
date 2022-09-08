@@ -4,12 +4,18 @@
 # editors/os/nsswitch.py
 
 
-from ..lib.base import (EOF, ParsingError,
-    ContainerNode, RecordNode, StringNode, TemplateStringNode,
-    ParentOfMatcher, TypeMatcher, TypeValueMatcher)
-from ..lib.line import (LineEditor,
-    LineParser,
-    BlankLineNode, CommentLineNode, LinesNode)
+from ..lib.base import (
+    EOF,
+    ParsingError,
+    ContainerNode,
+    RecordNode,
+    StringNode,
+    TemplateStringNode,
+    ParentOfMatcher,
+    TypeMatcher,
+    TypeValueMatcher,
+)
+from ..lib.line import LineEditor, LineParser, BlankLineNode, CommentLineNode, LinesNode
 
 
 # simple class definitions
@@ -21,7 +27,6 @@ SourcesActionsNode = type("SourcesActionsNode", (RecordNode,), {"separator": Non
 
 
 class NsswitchRecordNode(ContainerNode):
-
     def render(self):
         dbnamenode = self.children[0]
         sourcesactionsnode = self.children[1]
@@ -29,7 +34,6 @@ class NsswitchRecordNode(ContainerNode):
 
 
 class RecordDbnameMatcher(ParentOfMatcher):
-
     def __init__(self, dbname, **kwargs):
         matcher = TypeValueMatcher(DbnameNode, dbname)
         super().__init__(matcher=matcher, **kwargs)
@@ -64,10 +68,11 @@ class NSSwitchConfFileParser(LineParser):
                 sourcesactionsnode.add(SourceNode(sourceaction))
 
         nsswitchrecordnode = NsswitchRecordNode(
-                [
-                    DbnameNode(dbname),
-                    sourcesactionsnode,
-                ])
+            [
+                DbnameNode(dbname),
+                sourcesactionsnode,
+            ]
+        )
 
         return nsswitchrecordnode
 
@@ -86,17 +91,14 @@ class NSSwitchConfFileParser(LineParser):
 
 
 class NSSwitchConfFileEditor(LineEditor):
-    """Editor for nsswitch.conf file.
-    """
+    """Editor for nsswitch.conf file."""
 
     DEFAULT_PARSER_CLASS = NSSwitchConfFileParser
     DEFAULT_PATH = "/etc/nsswitch.conf"
 
     def get_sourcesactions(self, dbname):
-        """Return list of sources and actions for dbname.
-        """
-        parentchild = self.root.find_first(
-                RecordDbnameMatcher(dbname, rettype="parentchild"))
+        """Return list of sources and actions for dbname."""
+        parentchild = self.root.find_first(RecordDbnameMatcher(dbname, rettype="parentchild"))
 
         sourcesactions = []
         if parentchild:
@@ -107,17 +109,14 @@ class NSSwitchConfFileEditor(LineEditor):
         return sourcesactions
 
     def remove_db(self, dbname):
-        """Convenience: Remove nsswitch record.
-        """
-        parentchild = self.root.find_first(
-                RecordDbnameMatcher(dbname, rettype="parentchild"))
+        """Convenience: Remove nsswitch record."""
+        parentchild = self.root.find_first(RecordDbnameMatcher(dbname, rettype="parentchild"))
         if parentchild:
             parentnode, childnode = parentchild
             parentnode.remove(childnode)
 
     def upsert_record_by_text(self, line):
-        """Upsert record by text.
-        """
+        """Upsert record by text."""
         p = self.get_parser(line)
         p.nextstripline()
 
@@ -125,8 +124,7 @@ class NSSwitchConfFileEditor(LineEditor):
         dbnamenode = recordnode.find_first(TypeMatcher(DbnameNode))
         dbname = dbnamenode.value
 
-        parentchild = self.root.find_first(
-                RecordDbnameMatcher(dbname, rettype="parentchild"))
+        parentchild = self.root.find_first(RecordDbnameMatcher(dbname, rettype="parentchild"))
         if parentchild:
             parentnode, childnode = parentchild
             parentnode.upsert(childnode, recordnode)

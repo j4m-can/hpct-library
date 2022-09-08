@@ -16,14 +16,15 @@ logger = logging.getLogger(__name__)
 
 
 class NoValue:
-
     def __str__(self):
         return "no value"
 
     def __repr__(self):
         return "no value"
 
+
 NoValue = NoValue()
+
 
 class Value:
     """Base descriptor for use with interfaces. The interface provides
@@ -36,8 +37,7 @@ class Value:
         self.checker = checker
 
     def __get__(self, owner, objtype=None):
-        """Return value (from owner).
-        """
+        """Return value (from owner)."""
         if owner == None:
             return self
 
@@ -53,8 +53,7 @@ class Value:
         return value
 
     def __set__(self, owner, value):
-        """Set value (in owner).
-        """
+        """Set value (in owner)."""
 
         if self.checker:
             self.checker.check(value)
@@ -67,14 +66,13 @@ class Value:
 
         TODO: is this needed?
         """
-        #self.name = f"_{owner.__class__.__name__}_store_{name}"
-        #self.name = f"_{owner.__name__}_store_{name}"
+        # self.name = f"_{owner.__class__.__name__}_store_{name}"
+        # self.name = f"_{owner.__name__}_store_{name}"
         self.name = name
 
 
 class ReadOnlyValue(Value):
-    """When target is read-only.
-    """
+    """When target is read-only."""
 
     def __set__(self, owner, value):
         raise AttributeError("this setting is read only")
@@ -101,20 +99,17 @@ class Interface:
         return issubclass(o, self._basecls)
 
     def _get(self, key, default=None):
-        """Accessor for the interface store.
-        """
+        """Accessor for the interface store."""
 
         return self._store.get(key, default)
 
     def _set(self, key, value):
-        """Accessor for the interface store.
-        """
+        """Accessor for the interface store."""
 
         self._store[key] = value
 
     def get_doc(self, show_values=False):
-        """Return json object about interface.
-        """
+        """Return json object about interface."""
         try:
             values = {}
             doc = (self.__class__.__doc__ or "").strip()
@@ -141,7 +136,7 @@ class Interface:
                         "type": v.codec.__class__.__name__,
                         "module": v.codec.__module__,
                         "description": doc,
-                        "params": self.params
+                        "params": self.params,
                     }
 
                 if show_values:
@@ -153,43 +148,41 @@ class Interface:
         return j
 
     def get_keys(self):
-        """Get keys of all descriptors.
-        """
+        """Get keys of all descriptors."""
 
         # TODO: _bucketkey does not show up
         basecls = self._basecls
-        return [k for k in dir(self)
-                if hasattr(self.__class__, k) and isinstance(getattr(self.__class__, k), basecls)]
+        return [
+            k
+            for k in dir(self)
+            if hasattr(self.__class__, k) and isinstance(getattr(self.__class__, k), basecls)
+        ]
 
     def get_items(self):
-        """Get descriptor items.
-        """
+        """Get descriptor items."""
 
         basecls = self._basecls
         return [(k, getattr(self, k)) for k in self.get_keys()]
 
     def is_ready(self):
-        """Return if the interface is ready.
-        """
+        """Return if the interface is ready."""
 
         return False
 
     def set_item(self, key, value):
-        """Update a single item by key.
-        """
+        """Update a single item by key."""
 
         setattr(self, key, value)
 
     def update(self, d):
-        """Update multiple items from a dict.
-        """
+        """Update multiple items from a dict."""
 
         for k, v in d:
             self.set_item(k, v)
 
+
 class SuperInterface:
-    """Base class to manage multiple interfaces.
-    """
+    """Base class to manage multiple interfaces."""
 
     def __init__(self):
         pass

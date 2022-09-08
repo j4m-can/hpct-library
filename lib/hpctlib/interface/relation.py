@@ -13,8 +13,7 @@ from typing import Any
 
 from . import codec
 from . import interface_registry
-from .base import (Value, Interface, NoValue, ReadOnlyValue,
-    SuperInterface)
+from .base import Value, Interface, NoValue, ReadOnlyValue, SuperInterface
 
 
 logger = logging.getLogger(__name__)
@@ -30,8 +29,8 @@ OTHER_ROLE = {
 # base classes
 #
 
-class MockRelation:
 
+class MockRelation:
     def __init__(self):
         self.data = {
             "app": {},
@@ -40,8 +39,7 @@ class MockRelation:
 
 
 class BucketInterface(Interface):
-    """Interface for relation bucket storage.
-    """
+    """Interface for relation bucket storage."""
 
     _basecls = Value
 
@@ -52,8 +50,7 @@ class BucketInterface(Interface):
         self._mock = False
 
     def _get(self, key: str, default=None):
-        """Accessor (for raw data) to the relation store.
-        """
+        """Accessor (for raw data) to the relation store."""
 
         key = key.replace("_", "-")
 
@@ -67,8 +64,7 @@ class BucketInterface(Interface):
             return value
 
     def _set(self, key: str, value: Any):
-        """Accessor (for raw data) to the relation store.
-        """
+        """Accessor (for raw data) to the relation store."""
 
         key = key.replace("_", "-")
 
@@ -79,8 +75,7 @@ class BucketInterface(Interface):
             relation.data[bucketkey].update({key: value})
 
     def get_relation(self):
-        """Return relation associated with registered relation name.
-        """
+        """Return relation associated with registered relation name."""
 
         if self._mock:
             return self._mock_relation
@@ -102,8 +97,7 @@ class BucketInterface(Interface):
         return relations
 
     def is_ready(self):
-        """Return if the interface is ready.
-        """
+        """Return if the interface is ready."""
 
         return False
 
@@ -117,19 +111,18 @@ class AppBucketInterface(BucketInterface):
 
     Note All app relation bucket interfaces should subclass this!
     """
+
     pass
 
 
 class AppConfigBucketInterface(AppBucketInterface):
-    """
-    """
+    """ """
 
     config = Value(codec.Blob(), None)
 
 
 class AppSecureConfigBucketInterface(AppBucketInterface):
-    """
-    """
+    """ """
 
     config = Value(codec.Blob(), None)
 
@@ -151,6 +144,7 @@ class UnitBucketInterface(BucketInterface):
 #
 # other subclasses
 #
+
 
 class ReadyBucketInterface(AppBucketInterface):
 
@@ -183,8 +177,7 @@ class RelationSuperInterface(SuperInterface):
         }
 
     def get_doc(self, show_values=False):
-        """Return json doc about super interface.
-        """
+        """Return json doc about super interface."""
 
         doc = (self.__doc__ or "").strip()
         j = {
@@ -213,8 +206,7 @@ class RelationSuperInterface(SuperInterface):
         return self.interface_classes.get((role, buckettype))
 
     def get_role(self):
-        """Determine "role" (provider, requirer, peer).
-        """
+        """Determine "role" (provider, requirer, peer)."""
 
         if self.role:
             return self.role
@@ -269,7 +261,6 @@ class RelationSuperInterface(SuperInterface):
 
 
 class AppConfigRelationSuperInterface(RelationSuperInterface):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -277,7 +268,6 @@ class AppConfigRelationSuperInterface(RelationSuperInterface):
 
 
 class AppSecureConfigRelationSuperInterface(RelationSuperInterface):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -285,7 +275,6 @@ class AppSecureConfigRelationSuperInterface(RelationSuperInterface):
 
 
 class AppReadyRelationSuperInterface(RelationSuperInterface):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

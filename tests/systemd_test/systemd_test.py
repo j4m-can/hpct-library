@@ -16,7 +16,7 @@ if __name__ == "__main__":
     sep = "----------"
 
     e = SystemdConfFileEditor()
-    #e.load("resolved.conf")
+    # e.load("resolved.conf")
     e.load("pipewire-session-manager.service")
 
     print(e.render())
@@ -25,10 +25,10 @@ if __name__ == "__main__":
     print(json.dumps(e.render_json(), indent=2, sort_keys=True))
 
     print(sep)
-    #e.remove_group("b")
+    # e.remove_group("b")
     print(e.get_section_names())
     print(e.get_settings("Install"))
-    #print(e.render())
+    # print(e.render())
 
     print(sep)
-    #print(e.get_groups())
+    # print(e.get_groups())

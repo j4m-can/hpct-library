@@ -16,32 +16,39 @@ logger = logging.getLogger(__name__)
 def a():
     print("a")
 
+
 @log_enter_exit(logfn=print)
 def a_args(x):
     print(f"a_args x ({x})")
+
 
 @log_enter_exit(logfn=print)
 def a_kwargs(y=100):
     print(f"a_kwargs y ({y})")
 
+
 @log_enter_exit(logfn=print)
 def a_args_kwargs(x, y=2):
     print(f"a _args_kwargs x ({x}) y ({y})")
+
 
 @log_enter_exit(logfn=print)
 def b_args(*args):
     print(f"b _args args ({args})")
 
+
 @log_enter_exit(logfn=print)
 def b_args_kwargs(*args, **kwargs):
     print(f"b_args_kwargs args ({args}) kwargs ({kwargs})")
 
+
 def c_kwargs(y=100):
     print(f"c_kwargs y ({y})")
 
-if 1:
-    class A:
 
+if 1:
+
+    class A:
         @log_enter_exit(logfn=print)
         def aa(self):
             print(f"--- {dir()}")
@@ -82,4 +89,3 @@ if __name__ == "__main__":
     c_kwargs(y=89)
 
     A().aa()
-

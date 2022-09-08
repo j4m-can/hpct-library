@@ -17,14 +17,11 @@ setup(
         include=["hpctlib*"],
     ),
     package_dir={"": "lib"},
-    install_requires=[
-        "cryptography",
-        "ops"
-    ],
+    install_requires=["cryptography", "ops"],
     classifiers=[
         "Development State :: 1 - Planning",
         "License :: OSI Approved :: Apache-2.0",
         "Operating System :: Linux",
-        "Programming Language :: Python :: 3"
+        "Programming Language :: Python :: 3",
     ],
 )

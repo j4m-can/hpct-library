@@ -13,8 +13,7 @@ import subprocess
 
 
 class Mounter:
-    """Mount and unmount filesystems.
-    """
+    """Mount and unmount filesystems."""
 
     @staticmethod
     def mount(path):

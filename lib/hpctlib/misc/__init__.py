@@ -19,23 +19,20 @@ _app_logger = logging.getLogger(__name__)
 
 
 def get_methodname(self):
-    """Return method name of caller.
-    """
+    """Return method name of caller."""
 
     fname = inspect.stack()[1].function
     return f"{self.__class__.__name__}.{fname}"
 
 
 def get_nonce():
-    """Return a nonce.
-    """
+    """Return a nonce."""
 
     return secrets.token_urlsafe()
 
 
 def get_timestamp():
-    """Return a timestamp (string).
-    """
+    """Return a timestamp (string)."""
 
     return time.strftime("%Y%m%d-%H%M%S", time.gmtime())
 
@@ -51,7 +48,6 @@ def log_enter_exit(msg=None, logfn=None):
     """
 
     def decorator(func):
-
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             try:

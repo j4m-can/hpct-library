@@ -71,9 +71,11 @@ def get_object_by_name(self, event, name):
     Only self and event are supported.
     """
 
-    if name not in ["self", "event"] \
-            and not name.startswith("self.") \
-            and not name.startswith("event."):
+    if (
+        name not in ["self", "event"]
+        and not name.startswith("self.")
+        and not name.startswith("event.")
+    ):
         msg = "name must be self.<...> or event.<...>"
         event.log(msg)
         raise Exception("name must be self.<...> or event.<...>")
@@ -93,8 +95,7 @@ def get_object_by_name(self, event, name):
 
 
 def event2json(event):
-    """Extract event info.
-    """
+    """Extract event info."""
 
     return {
         "kind": event.event_kind,
@@ -129,8 +130,7 @@ def stringify(value):
 
 
 def unit2json(unit):
-    """Extract unit info.
-    """
+    """Extract unit info."""
 
     return {
         "app": unit.app,
@@ -171,8 +171,9 @@ class DebuggerCharm(DebuggerCharmBase):
         for name in self.framework.meta.actions:
             if name.startswith("debugger-"):
                 name = name.replace("-", "_")
-                self.framework.observe(getattr(self.on, f"{name}_action"),
-                        getattr(self, f"_on_{name}_action"))
+                self.framework.observe(
+                    getattr(self.on, f"{name}_action"), getattr(self, f"_on_{name}_action")
+                )
 
         # substitute observe method if intercepting
         if config.get("debugger-intercept-handler"):
@@ -242,7 +243,9 @@ class DebuggerCharm(DebuggerCharmBase):
         eventkind = event.event_kind
         self.debugger_handlers[eventkind] = handler
 
-        logger.debug(f"[{get_methodname(self)}] register for event ({event}) eventkind ({eventkind}) handler ({handler})")
+        logger.debug(
+            f"[{get_methodname(self)}] register for event ({event}) eventkind ({eventkind}) handler ({handler})"
+        )
         self._framework_observe(event, self._on_debugger_intercept_handler)
 
     @log_enter_exit()
@@ -286,8 +289,7 @@ class DebuggerCharm(DebuggerCharmBase):
 
     @log_enter_exit()
     def _on_debugger_dump_dirof_action(self, event):
-        """Run ```dir()``` on identifier in name.
-        """
+        """Run ```dir()``` on identifier in name."""
 
         try:
             name = event.params["name"]
@@ -312,22 +314,21 @@ class DebuggerCharm(DebuggerCharmBase):
 
     @log_enter_exit()
     def _on_debugger_dump_handlers_action(self, event):
-        """Dump a list a handlers registered for observation.
-        """
+        """Dump a list a handlers registered for observation."""
 
-        bad_hnames = [
-            "define_event", "events", "framework",
-            "model", "handle", "handle_kind"]
+        bad_hnames = ["define_event", "events", "framework", "model", "handle", "handle_kind"]
 
-        hnames = [hname for hname in dir(self.on)
-            if not hname.startswith("_") and hname not in bad_hnames]
+        hnames = [
+            hname
+            for hname in dir(self.on)
+            if not hname.startswith("_") and hname not in bad_hnames
+        ]
         value = {hname: getattr(self.on, hname) for hname in sorted(hnames)}
         self._debugger_out(event, value)
 
     @log_enter_exit()
     def _on_debugger_dump_host_action(self, event):
-        """Dump hostname.
-        """
+        """Dump hostname."""
 
         value = socket.gethostname()
         self._debugger_out(event, value)
@@ -350,8 +351,7 @@ class DebuggerCharm(DebuggerCharmBase):
 
     @log_enter_exit()
     def _on_debugger_dump_stored_action(self, event):
-        """Dump the ```_stored``` object, if present.
-        """
+        """Dump the ```_stored``` object, if present."""
 
         if hasattr(self, "_stored"):
             value = self._stored._data._cache
@@ -359,8 +359,7 @@ class DebuggerCharm(DebuggerCharmBase):
 
     @log_enter_exit()
     def _on_debugger_dump_time_action(self, event):
-        """Dump the ```time.time()``` value.
-        """
+        """Dump the ```time.time()``` value."""
 
         value = f"{time.time()}"
         self._debugger_out(event, value)
@@ -383,8 +382,7 @@ class DebuggerCharm(DebuggerCharmBase):
 
     @log_enter_exit()
     def _on_debugger_dump_unit_action(self, event):
-        """Dump unit information in somewhat detailed way.
-        """
+        """Dump unit information in somewhat detailed way."""
 
         value = unit2json(self.unit)
         self._debugger_out(event, value)

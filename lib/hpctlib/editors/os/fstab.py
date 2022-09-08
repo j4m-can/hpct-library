@@ -4,13 +4,16 @@
 # editors/os/fstab.py
 
 
-from ..lib.base import (EOF, ParsingError,
+from ..lib.base import (
+    EOF,
+    ParsingError,
     remove_child_nodes,
-    ParentOfMatcher, TypeValueMatcher,
-    RecordNode, StringNode)
-from ..lib.line import (LineEditor,
-    LineParser,
-    BlankLineNode, CommentLineNode, LinesNode)
+    ParentOfMatcher,
+    TypeValueMatcher,
+    RecordNode,
+    StringNode,
+)
+from ..lib.line import LineEditor, LineParser, BlankLineNode, CommentLineNode, LinesNode
 
 
 # simple class definitions
@@ -26,14 +29,12 @@ VfstypeNode = type("VfstypeNode", (StringNode,), {})
 
 
 class RecordFileMatcher(ParentOfMatcher):
-
     def __init__(self, path, **kwargs):
         matcher = TypeValueMatcher(nodetype=FileNode, value=path)
         super().__init__(matcher=matcher, **kwargs)
 
 
 class RecordSpecMatcher(ParentOfMatcher):
-
     def __init__(self, spec, **kwargs):
         matcher = TypeValueMatcher(nodetype=SpecNode, value=spec)
         super().__init__(matcher=matcher, **kwargs)
@@ -63,14 +64,15 @@ class FstabFileParser(LineParser):
 
         mntops = l[3].split(",")
         fstabrecordnode = FstabRecordNode(
-                children=[
-                    SpecNode(l[0]),
-                    FileNode(l[1]),
-                    VfstypeNode(l[2]),
-                    MntopsNode(children=[MntopNode(mntop) for mntop in mntops]),
-                    FreqNode(l[4]),
-                    PassnoNode(l[5]),
-                ])
+            children=[
+                SpecNode(l[0]),
+                FileNode(l[1]),
+                VfstypeNode(l[2]),
+                MntopsNode(children=[MntopNode(mntop) for mntop in mntops]),
+                FreqNode(l[4]),
+                PassnoNode(l[5]),
+            ]
+        )
 
         return fstabrecordnode
 
@@ -93,27 +95,21 @@ class FstabFileParser(LineParser):
 
 
 class FstabFileEditor(LineEditor):
-    """Fstab file editor.
-    """
+    """Fstab file editor."""
 
     DEFAULT_PARSER_CLASS = FstabFileParser
     DEFAULT_PATH = "/etc/fstab"
 
     def add_record_by_text(self, line):
-        """Convenience: Add record by text format.
-        """
+        """Convenience: Add record by text format."""
         self.root.add(self._parse_fstabrecord(line))
 
     def remove_by_file(self, path):
-        """Convenience: Remove record by file.
-        """
-        parentchilds = self.root.find(
-                RecordFileMatcher(path, rettype="parentchild"))
+        """Convenience: Remove record by file."""
+        parentchilds = self.root.find(RecordFileMatcher(path, rettype="parentchild"))
         remove_child_nodes(parentchilds)
 
     def remove_by_spec(self, spec):
-        """Convenience: Remove record by spec.
-        """
-        parentchilds = self.root.find(
-                RecordSpecMatcher(spec, rettype="parentchild"))
+        """Convenience: Remove record by spec."""
+        parentchilds = self.root.find(RecordSpecMatcher(spec, rettype="parentchild"))
         remove_child_nodes(parentchilds)

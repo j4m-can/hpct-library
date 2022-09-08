@@ -10,7 +10,7 @@ import sys
 
 sys.path.insert(0, os.path.realpath("../../lib"))
 
-from hpctlib.interface.base import (Interface, Value, test)
+from hpctlib.interface.base import Interface, Value, test
 from hpctlib.interface import codec, checker
 
 

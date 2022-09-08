@@ -4,13 +4,19 @@
 # editors/os/freedesktop.py
 
 
-from ..lib.base import (EOF, ParsingError,
+from ..lib.base import (
+    EOF,
+    ParsingError,
     remove_child_nodes,
-    Matcher, ParentOfMatcher, TypeMatcher, TypeValueMatcher,
-    RecordNode, StringNode, TemplateStringNode)
-from ..lib.line import (LineEditor,
-    LineParser,
-    BlankLineNode, CommentLineNode, LinesNode)
+    Matcher,
+    ParentOfMatcher,
+    TypeMatcher,
+    TypeValueMatcher,
+    RecordNode,
+    StringNode,
+    TemplateStringNode,
+)
+from ..lib.line import LineEditor, LineParser, BlankLineNode, CommentLineNode, LinesNode
 
 
 # simple class definitions
@@ -24,8 +30,7 @@ ValueNode = type("ValueNode", (StringNode,), {})
 
 
 class EntryMatcher(Matcher):
-    """Matches against node value: groupname, key, value (optional).
-    """
+    """Matches against node value: groupname, key, value (optional)."""
 
     def __init__(self, groupname, key, value=None, **kwargs):
         super().__init__(groupname=groupname, key=key, value=value, **kwargs)
@@ -38,8 +43,7 @@ class EntryMatcher(Matcher):
 
 
 class HeaderMatcher(TypeValueMatcher):
-    """Matches against node value: groupname.
-    """
+    """Matches against node value: groupname."""
 
     def __init__(self, groupname, **kwargs):
         super().__init__(nodetype=HeaderNode, value=groupname, **kwargs)
@@ -105,8 +109,7 @@ class FreeDesktopConfFileParser(LineParser):
 
 
 class FreeDesktopConfFileEditor(LineEditor):
-    """A non-lossy editor for freedesktop.org configuation files.
-    """
+    """A non-lossy editor for freedesktop.org configuation files."""
 
     DEFAULT_PARSER_CLASS = FreeDesktopConfFileParser
 
@@ -136,6 +139,7 @@ class FreeDesktopConfFileEditor(LineEditor):
 
     def remove_group(self, groupname):
         parentchild = self.root.find_first(
-                ParentOfMatcher(HeaderMatcher(groupname), rettype="parentchild"))
+            ParentOfMatcher(HeaderMatcher(groupname), rettype="parentchild")
+        )
         if parentchild:
             remove_child_nodes([parentchild])

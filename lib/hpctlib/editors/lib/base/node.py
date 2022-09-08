@@ -9,17 +9,14 @@
 
 
 class Node:
-    """Base node.
-    """
+    """Base node."""
 
     def render(self):
-        """Return a reconstituted form of the node value.
-        """
+        """Return a reconstituted form of the node value."""
         pass
 
     def render_json(self):
-        """Render a json (compatible) object.
-        """
+        """Render a json (compatible) object."""
         pass
 
 
@@ -33,8 +30,7 @@ class LeafNode(Node):
         self.value = value
 
     def render_json(self):
-        """Render a json (compatible) object.
-        """
+        """Render a json (compatible) object."""
 
         d = {
             "type": self.__class__.__name__,
@@ -43,16 +39,14 @@ class LeafNode(Node):
         return d
 
     def walk(self, maxdepth=1, topdown=True):
-        """No children.
-        """
+        """No children."""
 
         yield self
 
     def walkpath(self, nodepath=None, maxdepth=1, topdown=True):
-        """No children.
-        """
+        """No children."""
 
-        nodepath = (nodepath or [])+[self]
+        nodepath = (nodepath or []) + [self]
         yield nodepath[:]
 
 
@@ -66,20 +60,17 @@ class ContainerNode(Node):
         self.children = children if children != None else []
 
     def add(self, node):
-        """Add node to children.
-        """
+        """Add node to children."""
 
         self.children.append(node)
 
     def addn(self, nodes):
-        """Add node to children.
-        """
+        """Add node to children."""
 
         self.children.extend(nodes)
 
     def has(self, node):
-        """Return True if node is a child.
-        """
+        """Return True if node is a child."""
 
         return node in self.children
 
@@ -110,8 +101,7 @@ class ContainerNode(Node):
         return l
 
     def find_first(self, matcher, maxdepth=None, rettype=None):
-        """Find first match and return it, else None.
-        """
+        """Find first match and return it, else None."""
         results = self.find(matcher, maxcount=1, maxdepth=maxdepth, rettype=rettype)
         if results:
             return results[0]
@@ -119,8 +109,7 @@ class ContainerNode(Node):
             return None
 
     def index(self, node):
-        """Return position of node in children.
-        """
+        """Return position of node in children."""
 
         try:
             return self.children.index(node)
@@ -128,8 +117,7 @@ class ContainerNode(Node):
             return -1
 
     def insert_before(self, node, relnode, append=False):
-        """Insert node before relnode. Optionally append.
-        """
+        """Insert node before relnode. Optionally append."""
 
         try:
             i = self.children.index(relnode)
@@ -139,18 +127,16 @@ class ContainerNode(Node):
                 self.children.append(node)
 
     def insert_after(self, node, relnode, append=False):
-        """Insert node after relnode. Optionally append.
-        """
+        """Insert node after relnode. Optionally append."""
         try:
             i = self.children.index(relnode)
-            self.children.insert(i+1, node)
+            self.children.insert(i + 1, node)
         except:
             if append:
                 self.children.append(node)
 
     def remove(self, node):
-        """Remove child node (if found) from the list of children.
-        """
+        """Remove child node (if found) from the list of children."""
 
         try:
             self.children.remove(node)
@@ -158,13 +144,11 @@ class ContainerNode(Node):
             pass
 
     def render(self):
-        """Return a reconstituted form of the node value.
-        """
+        """Return a reconstituted form of the node value."""
         pass
 
     def render_json(self):
-        """Render a json (compatible) object.
-        """
+        """Render a json (compatible) object."""
 
         d = {
             "type": self.__class__.__name__,
@@ -174,8 +158,7 @@ class ContainerNode(Node):
         return d
 
     def upsert(self, node, newnode):
-        """Upsert node with newnode in the list of children.
-        """
+        """Upsert node with newnode in the list of children."""
 
         try:
             i = self.children.index(node)
@@ -191,7 +174,7 @@ class ContainerNode(Node):
         if topdown:
             yield self
         for node in self.children:
-            yield from node.walk(maxdepth-1, topdown)
+            yield from node.walk(maxdepth - 1, topdown)
         if not topdown:
             yield self
 
@@ -200,27 +183,25 @@ class ContainerNode(Node):
         encountered.
         """
 
-        nodepath = (nodepath or [])+[self]
+        nodepath = (nodepath or []) + [self]
         if topdown:
             yield nodepath[:]
         if maxdepth > 0:
             for node in self.children:
-                yield from node.walkpath(nodepath, maxdepth-1, topdown)
+                yield from node.walkpath(nodepath, maxdepth - 1, topdown)
         if not topdown:
             yield nodepath[:]
 
 
 class BlankNode(LeafNode):
-    """Blank.
-    """
+    """Blank."""
 
     def render(self):
         return ""
 
 
 class JoinNode(ContainerNode):
-    """Joins rendered children with separator.
-    """
+    """Joins rendered children with separator."""
 
     # whitespace
     separator = None
@@ -234,38 +215,34 @@ class JoinNode(ContainerNode):
         d["separator"] = self.separator
         return d
 
+
 class CommaJoinNode(JoinNode):
-    """Joins rendered children with ",".
-    """
+    """Joins rendered children with ","."""
 
     separator = ","
 
 
 class NewlineJoinNode(JoinNode):
-    """Joins rendered children with newline.
-    """
+    """Joins rendered children with newline."""
 
     separator = "\n"
 
 
 class RecordNode(JoinNode):
-    """Holds items rendered by joining with whitespace separator.
-    """
+    """Holds items rendered by joining with whitespace separator."""
 
     separator = None
 
 
 class StringNode(LeafNode):
-    """Renders value as a string.
-    """
+    """Renders value as a string."""
 
     def render(self):
         return f"{self.value}"
 
 
 class TemplateStringNode(StringNode):
-    """Renders value within a template string.
-    """
+    """Renders value within a template string."""
 
     template = "{value}\n"
 
@@ -273,9 +250,7 @@ class TemplateStringNode(StringNode):
         return self.template.format(value=self.value)
 
 
-
 def remove_child_nodes(parentchilds):
-    """Convenience: Remove child node from parent, multiple times.
-    """
+    """Convenience: Remove child node from parent, multiple times."""
     for parentnode, childnode in parentchilds:
         parentnode.remove(childnode)

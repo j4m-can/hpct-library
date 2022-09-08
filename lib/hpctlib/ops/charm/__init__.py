@@ -21,4 +21,5 @@ def set_base_charm(basecharm):
     """
 
     import ops.charm
+
     ops.charm.CharmBase = basecharm

@@ -4,12 +4,8 @@
 # editors/app/slurm.py
 
 
-from ..lib.base import (EOF, ParsingError,
-    Matcher,
-    RecordNode, StringNode)
-from ..lib.line import (LineParser,
-    LineEditor,
-    LinesNode)
+from ..lib.base import EOF, ParsingError, Matcher, RecordNode, StringNode
+from ..lib.line import LineParser, LineEditor, LinesNode
 
 
 # simple class definitions
@@ -25,16 +21,16 @@ ParamValueNode = type("ParamValueNode", (StringNode,), {})
 RootNode = type("RootNode", (LinesNode,), {})
 SlurmRecordNode = type("SlurmRecordNode", (RecordNode,), {})
 
-class IncludeNode(StringNode):
 
+class IncludeNode(StringNode):
     def render(self):
         pathnode = self.children[0]
         return f"Include {pathnode.render()}"
         # TODO: trailing comment?
 
+
 class RecordMatcher(Matcher):
-    """Matches against: name, value (optional).
-    """
+    """Matches against: name, value (optional)."""
 
     args = ["name", "value"]
 
@@ -151,14 +147,12 @@ class SlurmConfFileParser(LineParser):
 
 
 class SlurmConfFileEditor(LineEditor):
-    """Slurm configuration file editor.
-    """
+    """Slurm configuration file editor."""
 
     DEFAULT_PARSER_CLASS = SlurmConfFileParser
     DEFAULT_PATH = "/etc/slurm/slurm.conf"
 
     def add_line(self, line):
-        """Convenience: Add line.
-        """
+        """Convenience: Add line."""
         p = self.get_parser(line)
         self.root.add(p.parse_slurmrecord())

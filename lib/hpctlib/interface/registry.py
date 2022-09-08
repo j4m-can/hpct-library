@@ -27,14 +27,12 @@ class InterfaceRegistry:
         self.classes = {}
 
     def get(self, name: str):
-        """Get the interface class by name.
-        """
+        """Get the interface class by name."""
 
         return self.classes.get(name)
 
     def load(self, name: str, *args, **kwargs):
-        """Get the interfaces class and set it up with the args.
-        """
+        """Get the interfaces class and set it up with the args."""
 
         cls = self.get(name)
         if cls:
@@ -43,20 +41,17 @@ class InterfaceRegistry:
             return None
 
     def items(self):
-        """Get interface (key, value) items of registered entries.
-        """
+        """Get interface (key, value) items of registered entries."""
 
         return self.classes.items()
 
     def keys(self):
-        """Get interface keys of registered entries.
-        """
+        """Get interface keys of registered entries."""
 
         return self.classes.keys()
 
     def register(self, name: str, cls: Union[Interface, SuperInterface]):
-        """Register interface class by name.
-        """
+        """Register interface class by name."""
 
         if not issubclass(cls, (Interface, SuperInterface)):
             raise Exception(f"cls ({cls}) not an Interface")
@@ -64,7 +59,6 @@ class InterfaceRegistry:
         self.classes[name] = cls
 
     def values(self):
-        """Get interface classes of registered entries.
-        """
+        """Get interface classes of registered entries."""
 
         return self.classes.values()

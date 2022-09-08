@@ -15,8 +15,7 @@ from .parser import Feed, Parser
 
 
 class Editor:
-    """Base editor class.
-    """
+    """Base editor class."""
 
     DEFAULT_PARSER_CLASS = Parser
     DEFAULT_PATH = None
@@ -26,13 +25,11 @@ class Editor:
         self.root = None
 
     def add_json(self, j):
-        """Add from json representation.
-        """
+        """Add from json representation."""
         pass
 
     def dump(self, path=None):
-        """Write rendered results to a file.
-        """
+        """Write rendered results to a file."""
 
         path = path or self.DEFAULT_PATH
         with open(path, "wt") as f:
@@ -45,8 +42,7 @@ class Editor:
         return self.parsercls(*args, **kwargs)
 
     def load(self, path=None):
-        """Load file and parse, saving result internally.
-        """
+        """Load file and parse, saving result internally."""
 
         path = path or self.DEFAULT_PATH
         with open(path, "rt") as f:
@@ -54,8 +50,7 @@ class Editor:
             self.root = root
 
     def parse(self, f):
-        """Parse input and return results.
-        """
+        """Parse input and return results."""
         return self.get_parser(f).parse()
 
     def raw(self):
@@ -63,13 +58,11 @@ class Editor:
         return self.root
 
     def render(self):
-        """Reconstitute original.
-        """
+        """Reconstitute original."""
 
         return self.root.render()
 
     def render_json(self):
-        """Render nodes as json.
-        """
+        """Render nodes as json."""
 
         return self.root.render_json()

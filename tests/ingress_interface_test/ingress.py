@@ -29,24 +29,29 @@ requires:
 
 import re
 
-from hpctlib.interface.relation import (AppBucketInterface,
-    Value, RelationSuperInterface,
-    UnitBucketInterface)
+from hpctlib.interface.relation import (
+    AppBucketInterface,
+    Value,
+    RelationSuperInterface,
+    UnitBucketInterface,
+)
 from hpctlib.interface import interface_registry
 from hpctlib.interface import checker, codec
 
 
-INGRESS_URL_RE = \
-    "(?P<schema>http|https)" \
-    "://(?P<hostname>[^:]+)(:(?P<port>[0-9]+))?" \
-    "/(?P<appname>.*)-(?P<modelname>.*)" \
+INGRESS_URL_RE = (
+    "(?P<schema>http|https)"
+    "://(?P<hostname>[^:]+)(:(?P<port>[0-9]+))?"
+    "/(?P<appname>.*)-(?P<modelname>.*)"
     "/(?P<unit>[0-9]+)$"
+)
+
 
 class IngressUrlChecker(checker.Checker):
-
     def check(self, value):
         if not re.match(INGRESS_URL_RE, value):
             raise checker.CheckError("url does not conform")
+
 
 class IngressRelationSuperInterface(RelationSuperInterface):
     """From https://github.com/canonical/charm-relation-interfaces/tree/main/ingress_per_unit.

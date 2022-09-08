@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 
 # TODO: need a mock of the relation and bucket storage
 
+
 def xtest(interface, value):
     """Test interface set and get. Assume interface attribute name is
     "value" in all cases. The storage key is _<classname>_store_value.
@@ -48,22 +49,22 @@ def xtest(interface, value):
         # validate
         print(f"match? ({decoded == value})")
     except Exception as e:
-        #import traceback
-        #traceback.print_exc()
+        # import traceback
+        # traceback.print_exc()
         print(f"exception e ({e})")
-
 
     print("-----")
     print(json.dumps(interface.get_doc(), indent=2))
     print("==========")
 
 
-
 if __name__ == "__main__":
     ingress_provider = IngressRelationSuperInterface(
-            charm=None, relname="ingress", role="provider")
+        charm=None, relname="ingress", role="provider"
+    )
     ingress_requirer = IngressRelationSuperInterface(
-            charm=None, relname="ingress", role="requirer")
+        charm=None, relname="ingress", role="requirer"
+    )
 
     provider_app = ingress_provider.select("app")
     provider_app.set_mock()

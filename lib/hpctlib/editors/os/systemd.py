@@ -4,13 +4,18 @@
 # editors/os/systemd.py
 
 
-from ..lib.base import (EOF, ParsingError,
+from ..lib.base import (
+    EOF,
+    ParsingError,
     remove_child_nodes,
-    ParentOfMatcher, TypeMatcher, TypeValueMatcher,
-    RecordNode, StringNode, TemplateStringNode)
-from ..lib.line import (LineEditor,
-    LineParser,
-    BlankLineNode, CommentLineNode, LinesNode)
+    ParentOfMatcher,
+    TypeMatcher,
+    TypeValueMatcher,
+    RecordNode,
+    StringNode,
+    TemplateStringNode,
+)
+from ..lib.line import LineEditor, LineParser, BlankLineNode, CommentLineNode, LinesNode
 
 
 HeaderNode = type("HeaderNode", (TemplateStringNode,), {"template": "[{value}]"})
@@ -91,8 +96,7 @@ class SystemdConfFileParser(LineParser):
 
 
 class SystemdConfFileEditor(LineEditor):
-    """A non-lossy editor for systemd configuration files.
-    """
+    """A non-lossy editor for systemd configuration files."""
 
     DEFAULT_PARSER_CLASS = SystemdConfFileParser
 

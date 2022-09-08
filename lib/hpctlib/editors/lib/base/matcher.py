@@ -3,6 +3,7 @@
 #
 # editors/base/matcher.py
 
+
 class Matcher:
     """Encapsulate match function, match parameters, and match criteria.
 
@@ -51,7 +52,7 @@ class DescendantOfMatcher(Matcher):
 
     def match(self, node, nodepath):
         if len(nodepath) > self._depth:
-            return self._matcher.match(nodepath[-(self._depth+1)])
+            return self._matcher.match(nodepath[-(self._depth + 1)])
 
 
 class ChildOfMatcher(DescendantOfMatcher):
@@ -65,8 +66,7 @@ class ChildOfMatcher(DescendantOfMatcher):
 
 
 class NodeMatcher(Matcher):
-    """Matches against node.
-    """
+    """Matches against node."""
 
     def __init__(self, node, **kwargs):
         super().__init__(node=node, **kwargs)
@@ -86,30 +86,27 @@ class ParentOfMatcher(Matcher):
         super().__init__(matcher=matcher, **kwargs)
 
     def match(self, node, nodepath):
-        #print(f"node ({node})")
+        # print(f"node ({node})")
         if hasattr(node, "children"):
             for _node in node.children:
-                #print(f"testing child ({node})")
-                if self._matcher.match(_node, nodepath+[_node]):
+                # print(f"testing child ({node})")
+                if self._matcher.match(_node, nodepath + [_node]):
                     return True
 
 
 class TypeMatcher(Matcher):
-    """Matches against node type.
-    """
+    """Matches against node type."""
 
     def __init__(self, nodetype, **kwargs):
         super().__init__(nodetype=nodetype, **kwargs)
 
     def match(self, node, nodepath):
-        """Convenience: Find node by type.
-        """
+        """Convenience: Find node by type."""
         return type(node) == self._nodetype
 
 
 class TypeValueMatcher(Matcher):
-    """Matches against node type and node value.
-    """
+    """Matches against node type and node value."""
 
     def __init__(self, nodetype, value, **kwargs):
         super().__init__(nodetype=nodetype, value=value, **kwargs)
@@ -119,8 +116,7 @@ class TypeValueMatcher(Matcher):
 
 
 class ValueMatcher(Matcher):
-    """Matches against node value.
-    """
+    """Matches against node value."""
 
     def __init__(self, value, **kwargs):
         super().__init__(value=value, **kwargs)

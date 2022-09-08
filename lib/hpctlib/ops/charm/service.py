@@ -14,8 +14,7 @@ import time
 
 from ops.charm import CharmBase
 from ops.framework import StoredState
-from ops.model import (ActiveStatus, BlockedStatus, MaintenanceStatus,
-    WaitingStatus)
+from ops.model import ActiveStatus, BlockedStatus, MaintenanceStatus, WaitingStatus
 
 from ...misc import get_methodname, get_timestamp, log_enter_exit
 
@@ -74,14 +73,10 @@ class ServiceCharm(CharmBase):
         self.framework.observe(self.on.sync_action, self._on_sync_action)
 
         # update these using get/set
-        self._stored.set_default(
-                service_updated=None,
-                service_state="idle",
-                service_stale=True)
+        self._stored.set_default(service_updated=None, service_state="idle", service_stale=True)
 
         # subclass should preset the service_syncs keys to False
-        self._stored.set_default(
-                service_syncs={})
+        self._stored.set_default(service_syncs={})
 
         self.required_syncs = []
 
@@ -421,7 +416,7 @@ class ServiceCharm(CharmBase):
 
         self.service_stop(event, force)
         self.service_start(event)
-        #self.service_set_updated("reinstall")
+        # self.service_set_updated("reinstall")
 
     @log_enter_exit()
     def service_set_updated(self, what, timestamp=None):
@@ -486,6 +481,7 @@ class ServiceCharm(CharmBase):
 
         if current == True and status == False:
             import traceback
+
             logger.debug(f"STATUS key ({key})")
 
         if current != status:
@@ -559,19 +555,21 @@ class ServiceCharm(CharmBase):
             nsyncs = len(syncs)
 
             self.unit.status = cls(
-                    f"updated ({tuple(self.service_get_updated())})"
-                    f" stale ({self.service_get_stale()})"
-                    f" state ({self.service_get_state()})"
-                    f" synced ({nsynced}/{nsyncs})"
-                    f" syncs ({syncs})")
+                f"updated ({tuple(self.service_get_updated())})"
+                f" stale ({self.service_get_stale()})"
+                f" state ({self.service_get_state()})"
+                f" synced ({nsynced}/{nsyncs})"
+                f" syncs ({syncs})"
+            )
 
         elif 0:
             self.unit.status = cls(
-                    f"updated ({self.service_get_updated()})"
-                    f" stale ({self.service_get_stale()})"
-                    f" state ({self.service_get_state()})"
-                    f" synced ({self.service_is_synced()})"
-                    f" syncs ({self.service_get_syncs()})")
+                f"updated ({self.service_get_updated()})"
+                f" stale ({self.service_get_stale()})"
+                f" state ({self.service_get_state()})"
+                f" synced ({self.service_is_synced()})"
+                f" syncs ({self.service_get_syncs()})"
+            )
 
     @log_enter_exit()
     def service_sync(self, event, force=False):
@@ -580,8 +578,7 @@ class ServiceCharm(CharmBase):
         Note: Do not override.
         """
 
-        if self.service_get_state() not in PRESTARTED_STATES \
-                and not force:
+        if self.service_get_state() not in PRESTARTED_STATES and not force:
             # refuse to update while not in prestarted state
             # assume stale configuration
             self.service_set_stale(True)
@@ -593,6 +590,7 @@ class ServiceCharm(CharmBase):
                 self.service_set_updated("sync")
             except Exception as e:
                 import traceback
+
                 logger.debug(f"{traceback.format_exc()}")
                 logger.debug(f"[{get_methodname(self)} e ({e})")
 

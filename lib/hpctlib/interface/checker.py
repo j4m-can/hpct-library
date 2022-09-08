@@ -14,6 +14,7 @@ from typing import Union
 class CheckError(Exception):
     pass
 
+
 class Checker:
     """Holds parameters and provides a check() to check/validate a
     given value.
@@ -26,14 +27,12 @@ class Checker:
         return f"<{self.__module__}.{self.__class__.__name__} params ({self.params})>"
 
     def check(self, value):
-        """Return if the value check passes or not.
-        """
+        """Return if the value check passes or not."""
 
         return True
 
     def get_doc(self):
-        """Generate and return a dictionary describing the Checker.
-        """
+        """Generate and return a dictionary describing the Checker."""
 
         doc = (self.__doc__ or "").strip()
         d = {
@@ -53,14 +52,15 @@ class IntegerRange(Checker):
 
     def __init__(self, lo: Union[int, None], hi: Union[int, None]):
         super().__init__()
-        self.params.update({
-            "lo": lo,
-            "hi": hi,
-        })
+        self.params.update(
+            {
+                "lo": lo,
+                "hi": hi,
+            }
+        )
 
     def check(self, value: int):
-        """Check value against lo and hi parameters.
-        """
+        """Check value against lo and hi parameters."""
 
         lo = self.params["lo"]
         hi = self.params["hi"]
@@ -70,6 +70,7 @@ class IntegerRange(Checker):
         if hi != None and value > hi:
             raise CheckError("value is above range")
         return True
+
 
 class FloatRange(Checker):
     """Check for value within range [lo, hi].
@@ -79,14 +80,15 @@ class FloatRange(Checker):
 
     def __init__(self, lo: Union[float, None], hi: Union[float, None]):
         super().__init__()
-        self.params.update({
-            "lo": lo,
-            "hi": hi,
-        })
+        self.params.update(
+            {
+                "lo": lo,
+                "hi": hi,
+            }
+        )
 
     def check(self, value: float):
-        """Check value against lo and hi parameters.
-        """
+        """Check value against lo and hi parameters."""
 
         lo = self.params["lo"]
         hi = self.params["hi"]
@@ -97,25 +99,23 @@ class FloatRange(Checker):
             raise CheckError("value is above range")
         return True
 
+
 class Port(IntegerRange):
-    """Full range of network ports [0, 65535].
-    """
+    """Full range of network ports [0, 65535]."""
 
     def __init__(self):
         super().__init__(0, 65535)
 
 
 class PrivilegedPort(IntegerRange):
-    """Privileged port range [0, 1023].
-    """
+    """Privileged port range [0, 1023]."""
 
     def __init__(self):
         super().__init__(0, 1023)
 
 
 class UnprivilegedPort(IntegerRange):
-    """Unprivileged port range [1024, 65535].
-    """
+    """Unprivileged port range [1024, 65535]."""
 
     def __init__(self):
         super().__init__(1024, 65535)

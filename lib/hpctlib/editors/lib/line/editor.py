@@ -9,7 +9,6 @@ from .parser import LineParser
 
 
 class LineEditor(Editor):
-    """Base for a line-oriented editor.
-    """
+    """Base for a line-oriented editor."""
 
     DEFAULT_PARSER_CLASS = LineParser

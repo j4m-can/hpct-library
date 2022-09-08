@@ -37,8 +37,7 @@ class LineParser(Parser):
         return self.nextstripline()
 
     def nextline(self):
-        """Load next line into self.line. And, return self.line.
-        """
+        """Load next line into self.line. And, return self.line."""
         self.line = self.feed.popline()
         return self.line
 
@@ -73,4 +72,3 @@ class LineParser(Parser):
         line = self.line
         self.next()
         return CommentLineNode(line)
-
