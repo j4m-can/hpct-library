@@ -70,8 +70,7 @@ class BucketInterface(Interface):
 
         bucketkey = self._bucketkey
 
-        for relation in self.get_leader_relations():
-            print(f"relation ({relation})")
+        for relation in self.get_relations():
             relation.data[bucketkey].update({key: value})
 
     def get_relation(self):
@@ -81,6 +80,15 @@ class BucketInterface(Interface):
             return self._mock_relation
         else:
             return self._charm.model.get_relation(self._relname)
+
+    def get_relations(self):
+        """Return relations associated with registered relation name."""
+
+        if self._mock:
+            relations = [self._mock_relation]
+        else:
+            relations = self._charm.model.relations.get(self._relname, [])
+        return relations
 
     def get_leader_relations(self):
         """Return relations associated with registered relation name,
