@@ -333,6 +333,12 @@ class Noop(Codec):
         return value
 
 
+class Ready(Boolean):
+    """Convert ready status: True, False."""
+
+    pass
+
+
 class String(Codec):
     """String codec (noop)."""
 
@@ -343,9 +349,3 @@ class String(Codec):
 
     def encode(self, value: str) -> str:
         return value
-
-
-class Ready(Boolean):
-    """Convert ready status: True, False."""
-
-    pass
