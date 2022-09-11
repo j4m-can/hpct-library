@@ -130,6 +130,18 @@ class ServiceCharm(CharmBase):
         self.service_update_status()
 
     @log_enter_exit()
+    def _on_update_status(self, event):
+        """'update-status' handler.
+
+        Note: Do not override.
+        """
+        self.service_update_status()
+
+    #
+    # service-specific
+    #
+
+    @log_enter_exit()
     def _on_service_restart_action(self, event):
         """'service-restart' action handler.
 
@@ -199,14 +211,6 @@ class ServiceCharm(CharmBase):
             force = False
 
         self.service_sync(event, force)
-        self.service_update_status()
-
-    @log_enter_exit()
-    def _on_service_update_status(self, event):
-        """'service-update-status' handler.
-
-        Note: Do not override.
-        """
         self.service_update_status()
 
     #
