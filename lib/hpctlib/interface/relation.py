@@ -82,13 +82,14 @@ class BucketInterface(Interface):
 
         self._set(key, "")
 
-    def get_relation(self):
+    def get_relation(self, relation_id=None):
         """Return relation associated with registered relation name."""
 
         if self._mock:
             return self._mock_relation
         else:
-            return self._charm.model.get_relation(self._relname, self._relation_id)
+            relation_id = relation_id if relation_id != None else self.relation_id
+            return self._charm.model.get_relation(self._relname, relation_id)
 
     def get_relations(self):
         """Return relations associated with registered relation name."""
@@ -96,9 +97,10 @@ class BucketInterface(Interface):
         if self._mock:
             relations = [self._mock_relation]
         else:
-            relations = self._charm.model.relations.get(self._relname, [])
-            if self.relation_id != None:
-                relations = [rel for rel in relations if rel.relation_id == self._relation_id]
+            if self._relation_id != None:
+                relations = [self.get_relation()]
+            else:
+                relations = self._charm.model.relations.get(self._relname, [])
 
         return relations
 
@@ -111,19 +113,16 @@ class BucketInterface(Interface):
             relations = [self._mock_relation]
         else:
             if self._charm.unit.is_leader():
-                relations = self._charm.model.relations.get(self._relname, [])
+                relations = self.get_relations()
             else:
                 relations = []
 
-            if self.relation_id != None:
-                relations = [rel for rel in relations if rel.relation_id == self._relation_id]
-
         return relations
 
-    def is_ready(self):
+    def is_ready(self, relation_id=None):
         """Return if the relation is ready."""
 
-        return len(self.get_relations()) > 0
+        return len(self.get_relations(relation_id)) > 0
 
     def set_mock(self):
         self._mock = True
