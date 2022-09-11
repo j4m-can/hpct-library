@@ -47,7 +47,8 @@ class Value:
         else:
             value = self.codec.decode(value)
 
-        if self.checker:
+        # only check for non-NoValue values
+        if value != NoValue and self.checker:
             self.checker.check(value)
 
         return value
