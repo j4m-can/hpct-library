@@ -9,7 +9,7 @@
 
 
 import logging
-from typing import Any
+from typing import Any, Union
 
 from . import codec
 from . import interface_registry
@@ -43,10 +43,11 @@ class BucketInterface(Interface):
 
     _basecls = Value
 
-    def __init__(self, charm, relname: str, bucketkey: str):
+    def __init__(self, charm, relname: str, bucketkey: str, relation_id: Union[int, None] = None):
         self._charm = charm
         self._relname = relname
         self._bucketkey = bucketkey
+        self._relation_id = relation_id
         self._mock = False
 
     def _get(self, key: str, default=None):
@@ -87,7 +88,7 @@ class BucketInterface(Interface):
         if self._mock:
             return self._mock_relation
         else:
-            return self._charm.model.get_relation(self._relname)
+            return self._charm.model.get_relation(self._relname, self._relation_id)
 
     def get_relations(self):
         """Return relations associated with registered relation name."""
@@ -96,6 +97,9 @@ class BucketInterface(Interface):
             relations = [self._mock_relation]
         else:
             relations = self._charm.model.relations.get(self._relname, [])
+            if self.relation_id != None:
+                relations = [rel for rel in relations if rel.relation_id == self._relation_id]
+
         return relations
 
     def get_leader_relations(self):
@@ -110,6 +114,10 @@ class BucketInterface(Interface):
                 relations = self._charm.model.relations.get(self._relname, [])
             else:
                 relations = []
+
+            if self.relation_id != None:
+                relations = [rel for rel in relations if rel.relation_id == self._relation_id]
+
         return relations
 
     def is_ready(self):
@@ -240,7 +248,7 @@ class RelationSuperInterface(SuperInterface):
 
         return len(self.charm.model.get_relations(self.relname)) > 0
 
-    def select(self, bucketkey):
+    def select(self, bucketkey, relation_id=None):
         """Select and return interface to use.
 
         When determining the interface to use, the role and bucketkey
@@ -278,7 +286,7 @@ class RelationSuperInterface(SuperInterface):
 
         interface_cls = self.get_interface_class(rolekey, buckettype)
 
-        return interface_cls(self.charm, self.relname, bucketkey)
+        return interface_cls(self.charm, self.relname, bucketkey, relation_id)
 
 
 class AppConfigRelationSuperInterface(RelationSuperInterface):
