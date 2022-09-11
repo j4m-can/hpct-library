@@ -66,11 +66,13 @@ class ServiceCharm(CharmBase):
         self.framework.observe(self.on.stop, self._on_stop)
         self.framework.observe(self.on.update_status, self._on_update_status)
 
-        self.framework.observe(self.on.restart_action, self._on_restart_action)
-        self.framework.observe(self.on.set_sync_status_action, self._on_set_sync_status_action)
-        self.framework.observe(self.on.start_action, self._on_start_action)
-        self.framework.observe(self.on.stop_action, self._on_stop_action)
-        self.framework.observe(self.on.sync_action, self._on_sync_action)
+        self.framework.observe(self.on.service_restart_action, self._on_service_restart_action)
+        self.framework.observe(
+            self.on.service_set_sync_status_action, self._on_service_set_sync_status_action
+        )
+        self.framework.observe(self.on.service_start_action, self._on_service_start_action)
+        self.framework.observe(self.on.service_stop_action, self._on_service_stop_action)
+        self.framework.observe(self.on.service_sync_action, self._on_service_sync_action)
 
         # update these using get/set
         self._stored.set_default(service_updated=None, service_state="idle", service_stale=True)
@@ -128,8 +130,8 @@ class ServiceCharm(CharmBase):
         self.service_update_status()
 
     @log_enter_exit()
-    def _on_restart_action(self, event):
-        """'restart' action handler.
+    def _on_service_restart_action(self, event):
+        """'service-restart' action handler.
 
         Note: Do not override.
         """
@@ -145,8 +147,8 @@ class ServiceCharm(CharmBase):
         self.service_update_status()
 
     @log_enter_exit()
-    def _on_set_sync_status_action(self, event):
-        """'set-sync-status' action handler.
+    def _on_service_set_sync_status_action(self, event):
+        """'service-set-sync-status' action handler.
 
         Note: Do not override.
         """
@@ -162,8 +164,8 @@ class ServiceCharm(CharmBase):
             logger.debug(f"[{get_methodname(self)} e ({e})")
 
     @log_enter_exit()
-    def _on_start_action(self, event):
-        """'start' action handler.
+    def _on_service_start_action(self, event):
+        """'service-start' action handler.
 
         Note: Do not override.
         """
@@ -171,8 +173,8 @@ class ServiceCharm(CharmBase):
         self.service_start(event)
 
     @log_enter_exit()
-    def _on_stop_action(self, event):
-        """'stop' action handler.
+    def _on_service_stop_action(self, event):
+        """'service-stop' action handler.
 
         Note: Do not override.
         """
@@ -185,8 +187,8 @@ class ServiceCharm(CharmBase):
         self.service_stop(event, force)
 
     @log_enter_exit()
-    def _on_sync_action(self, event):
-        """'sync' action handler.
+    def _on_service_sync_action(self, event):
+        """'service-sync' action handler.
 
         Note: Do not override.
         """
@@ -200,8 +202,8 @@ class ServiceCharm(CharmBase):
         self.service_update_status()
 
     @log_enter_exit()
-    def _on_update_status(self, event):
-        """'update-status' handler.
+    def _on_service_update_status(self, event):
+        """'service-update-status' handler.
 
         Note: Do not override.
         """
