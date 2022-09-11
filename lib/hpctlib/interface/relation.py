@@ -73,6 +73,14 @@ class BucketInterface(Interface):
         for relation in self.get_relations():
             relation.data[bucketkey].update({key: value})
 
+    def clear(self, key):
+        """Clear/delete key from storage (bucket).
+
+        According to `RelationDataContent.__delitem__()`.
+        """
+
+        self._set(key, "")
+
     def get_relation(self):
         """Return relation associated with registered relation name."""
 

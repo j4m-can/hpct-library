@@ -109,6 +109,11 @@ class Interface:
 
         self._store[key] = value
 
+    def clear(self, key):
+        """Clear/delete key from storage."""
+
+        del self._store[key]
+
     def get_doc(self, show_values=False):
         """Return json object about interface."""
         try:
