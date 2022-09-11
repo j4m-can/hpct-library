@@ -105,9 +105,9 @@ class BucketInterface(Interface):
         return relations
 
     def is_ready(self):
-        """Return if the interface is ready."""
+        """Return if the relation is ready."""
 
-        return False
+        return len(self.get_relations()) > 0
 
     def set_mock(self):
         self._mock = True
@@ -226,6 +226,11 @@ class RelationSuperInterface(SuperInterface):
             return "requirer"
         else:
             return "peer"
+
+    def is_ready(self):
+        """Return if the relation is ready."""
+
+        return len(self.charm.model.get_relations(self.relname)) > 0
 
     def select(self, bucketkey):
         """Select and return interface to use.
