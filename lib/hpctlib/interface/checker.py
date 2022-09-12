@@ -8,6 +8,7 @@
 """
 
 
+from urllib.parse import urlparse
 from typing import Union
 
 
@@ -119,3 +120,16 @@ class UnprivilegedPort(IntegerRange):
 
     def __init__(self):
         super().__init__(1024, 65535)
+
+
+class URL(Checker):
+    """URL with format: <scheme>://<host>.
+
+    TODO: This approach is (embarrassingly) rudimentary. It can be
+    improved to provide stronger validation/checking."""
+
+    def check(self, value: str):
+        """Check value URL format."""
+
+        res = urlparse(str)
+        return all([res.scheme, res.netloc])
