@@ -70,3 +70,38 @@ def log_enter_exit(msg=None, logfn=None):
         return wrapper
 
     return decorator
+
+
+def service_forced_update(what=None):
+    """Decorator factory to wrap a function call in try-finally and
+    ensure that Charm.service_set_updated() and
+    Charm.service_update_status() are called.
+
+    Args:
+        what: Corresponds to the Charm.service_set_updated() what argument
+    """
+
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            try:
+                qualname = getattr(func, "__qualname__", "na")
+                # TODO: tweak this to trim qualname if necessary
+                _what = what or f"[{qualname}]"
+                self = getattr(func, "__self__")
+                # cls = getattr(self, "__class__")
+                # verify cls is subclass of CharmBase!
+
+                return func(*args, **kwargs)
+            finally:
+                try:
+                    if self and hasattr(self, "service_set_updated"):
+                        # assume a ServiceCharm
+                        self.service_set_updated(_what)
+                        self.service_update_status()
+                except:
+                    pass
+
+        return wrapper
+
+    return decorator
