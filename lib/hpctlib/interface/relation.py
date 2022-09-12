@@ -88,7 +88,7 @@ class BucketInterface(Interface):
         if self._mock:
             return self._mock_relation
         else:
-            relation_id = relation_id if relation_id != None else self.relation_id
+            relation_id = relation_id if relation_id != None else self._relation_id
             return self._charm.model.get_relation(self._relname, relation_id)
 
     def get_relations(self):
