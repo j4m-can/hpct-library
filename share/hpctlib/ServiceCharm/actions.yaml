@@ -4,7 +4,7 @@
 # Learn more about actions at: https://juju.is/docs/sdk/actions
 
 # for ServiceCharm
-serivce-restart:
+service-restart:
   description: Restart services.
   params:
     force:
@@ -16,7 +16,7 @@ serivce-restart:
       type: boolean
       default: false
 
-serivce-set-sync-status:
+service-set-sync-status:
   description: Set sync status (debugging).
   params:
     key:
@@ -26,10 +26,10 @@ serivce-set-sync-status:
       description: Sync status.
       type: boolean
 
-serivce-start:
+service-start:
   description: Start services.
 
-serivce-stop:
+service-stop:
   description: Stop services.
   params:
     force:
@@ -37,7 +37,7 @@ serivce-stop:
       type: boolean
       default: false
 
-serivce-sync:
+service-sync:
   description: Sync configuration.
   params:
     force:
