@@ -5,6 +5,10 @@
 
 
 """Base implementation of Checker, and some common Checker subclasses.
+
+A checker is not a substitue for a dedicated Value but a way to
+check that a value meets specific constraints. A checker should be
+general enough to be reused.
 """
 
 
