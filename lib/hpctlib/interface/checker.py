@@ -12,6 +12,7 @@ general enough to be reused.
 """
 
 
+import re
 from typing import Union
 
 
@@ -102,3 +103,28 @@ class FloatRange(Checker):
         if hi != None and value > hi:
             raise CheckError("value is above range")
         return True
+
+
+class Regexp(Checker):
+    """Check that string value is matched by regular expression."""
+
+    def __init__(self, regexp: str):
+        """Setup.
+
+        Delay compilation of regular expression to check(). Also,
+        delays regexp validation check, too.
+        """
+
+        super().__init__()
+        self.regexp = regexp
+        self.cregexp = None
+
+    def check(self, value: str):
+        """Check value against regular expression."""
+
+        if self.cregexp == None:
+            try:
+                self.cregexp = re.compile(self.regexp)
+            except:
+                raise CheckError("bad regular expression")
+        return self.cregexp.match(value)
