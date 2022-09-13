@@ -1,17 +1,15 @@
 # Copyright 2022 Canonical Ltd.
 # See LICENSE file for licensing details.
 #
-# hpctlib/interface/value.py
+# hpctlib/interface/value/__init__.py
 
-"""Supported interface value objects.
-
-Note: Test exposing values rather than codecs. Codecs would be hidden.
+"""Base interface value objects.
 """
 
 import ipaddress
 
-from .base import NoValue, Value
-from . import codec
+from .. import codec, checker
+from ..base import NoValue, Value
 
 
 class XValue(Value):
@@ -48,16 +46,6 @@ class Float(XValue):
 class Integer(XValue):
     codec = codec.Integer()
     default = 0
-
-
-class IPAddress(XValue):
-    codec = codec.IPAddress()
-    default = ipaddress.IPv4Address("0.0.0.0")
-
-
-class IPNetwork(XValue):
-    codec = codec.IPNetwork()
-    default = ipaddress.IPv4Network("0.0.0.0")
 
 
 class Noop(XValue):
