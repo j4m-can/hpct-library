@@ -12,7 +12,6 @@ general enough to be reused.
 """
 
 
-from urllib.parse import urlparse
 from typing import Union
 
 
@@ -103,37 +102,3 @@ class FloatRange(Checker):
         if hi != None and value > hi:
             raise CheckError("value is above range")
         return True
-
-
-class Port(IntegerRange):
-    """Full range of network ports [0, 65535]."""
-
-    def __init__(self):
-        super().__init__(0, 65535)
-
-
-class PrivilegedPort(IntegerRange):
-    """Privileged port range [0, 1023]."""
-
-    def __init__(self):
-        super().__init__(0, 1023)
-
-
-class UnprivilegedPort(IntegerRange):
-    """Unprivileged port range [1024, 65535]."""
-
-    def __init__(self):
-        super().__init__(1024, 65535)
-
-
-class URL(Checker):
-    """URL with format: <scheme>://<host>.
-
-    TODO: This approach is (embarrassingly) rudimentary. It can be
-    improved to provide stronger validation/checking."""
-
-    def check(self, value: str):
-        """Check value URL format."""
-
-        res = urlparse(str)
-        return all([res.scheme, res.netloc])
