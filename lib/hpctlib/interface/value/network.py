@@ -8,23 +8,24 @@
 
 import ipaddress
 
-from .. import codec, checker
-from ..base import NoValue
-from . import XValue, Integer
+from .. import codec as _codec
+from .. import checker
+from ..base import NoValue, Value
+from . import Integer
 
 
-class IPAddress(XValue):
-    codec = codec.IPAddress()
+class IPAddress(Value):
+    codec = _codec.IPAddress()
     default = ipaddress.IPv4Address("0.0.0.0")
 
 
-class IPNetwork(XValue):
-    codec = codec.IPNetwork()
+class IPNetwork(Value):
+    codec = _codec.IPNetwork()
     default = ipaddress.IPv4Network("0.0.0.0")
 
 
 class Port(Integer):
-    codec = codec.Integer()
+    codec = _codec.Integer()
     default = 0
     checker = checker.IntegerRange(0, 65535)
 
@@ -38,7 +39,6 @@ class UnprivilegedPort(Port):
     checker = checker.IntegerRange(1024, 65535)
 
 
-class URL(XValue):
-    codec = codec.String()
-    default = ""
+class URL(Value):
+    codec = _codec.String()
     checker = checker.URL()

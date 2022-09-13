@@ -8,55 +8,41 @@
 
 import ipaddress
 
-from .. import codec, checker
+from .. import codec as _codec
 from ..base import NoValue, Value
 
 
-class XValue(Value):
-    codec = None
-    default = None
-    checker = None
-
-    def __init__(self, default=NoValue, checker=None):
-        self.default = self.default if default == NoValue else default
-        self.checker = self.checker if checker == None else checker
-        super().__init__(self.codec, self.default, checker)
-
-
-class Boolean(XValue):
-    codec = codec.Boolean()
+class Boolean(Value):
+    codec = _codec.Boolean()
     default = False
 
 
-class Blob(XValue):
-    codec = codec.Blob()
-    default = None
+class Blob(Value):
+    codec = _codec.Blob()
 
 
-class Dict(XValue):
-    codec = codec.Dict()
-    default = None
+class Dict(Value):
+    codec = _codec.Dict()
 
 
-class Float(XValue):
-    codec = codec.Float()
+class Float(Value):
+    codec = _codec.Float()
     default = 0.0
 
 
-class Integer(XValue):
-    codec = codec.Integer()
+class Integer(Value):
+    codec = _codec.Integer()
     default = 0
 
 
-class Noop(XValue):
-    codec = codec.Noop()
-    default = ""
+class Noop(Value):
+    codec = _codec.Noop()
 
 
 class Ready(Boolean):
     pass
 
 
-class String(XValue):
-    codec = codec.String()
+class String(Value):
+    codec = _codec.String()
     default = ""

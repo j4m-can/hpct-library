@@ -29,12 +29,22 @@ NoValue = NoValue()
 class Value:
     """Base descriptor for use with interfaces. The interface provides
     storage via its get() and set().
+
+    The checker validates the value encoded and decoded.
+
+    The codec encodes (to string) and decodes (from string).
+
+    The default is return when there is no value set.
     """
 
-    def __init__(self, codec, default=NoValue, checker=None):
-        self.codec = codec
-        self.default = default
-        self.checker = checker
+    checker = None
+    codec = None
+    default = NoValue
+
+    def __init__(self, default=NoValue, checker=None, codec=None):
+        self.checker = self.checker if checker == None else checker
+        self.codec = self.codec if codec == None else codec
+        self.default = self.default if default == NoValue else default
 
     def __get__(self, owner, objtype=None):
         """Return value (from owner)."""
@@ -55,6 +65,9 @@ class Value:
 
     def __set__(self, owner, value):
         """Set value (in owner)."""
+
+        if value == NoValue:
+            return
 
         if self.checker:
             self.checker.check(value)
