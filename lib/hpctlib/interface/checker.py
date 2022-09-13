@@ -14,6 +14,7 @@ general enough to be reused.
 
 import re
 from typing import Union
+from urllib.parse import urlparse
 
 
 class CheckError(Exception):
@@ -128,3 +129,15 @@ class Regexp(Checker):
             except:
                 raise CheckError("bad regular expression")
         return self.cregexp.match(value)
+
+
+class URL(Checker):
+    """URL with format: <scheme>://<host>.
+    TODO: This approach is (embarrassingly) rudimentary. It can be
+    improved to provide stronger validation/checking."""
+
+    def check(self, value: str):
+        """Check value URL format."""
+
+        res = urlparse(str)
+        return all([res.scheme, res.netloc])
