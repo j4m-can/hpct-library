@@ -44,8 +44,16 @@ class NegativeInteger(Integer):
     checker = _checker.IntegerRange(1, None)
 
 
+class NonNegativeFloat(Float):
+    checker = _checker.FloatRange(0.0, None)
+
+
 class NonNegativeInteger(Integer):
     checker = _checker.IntegerRange(0, None)
+
+
+class NonPositiveFloat(Float):
+    checker = _checker.FloatRange(None, 0.0)
 
 
 class NonPositiveInteger(Integer):
