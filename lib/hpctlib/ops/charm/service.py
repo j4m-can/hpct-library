@@ -76,7 +76,10 @@ class ServiceCharm(CharmBase):
 
         # update these using get/set
         self._service_stored.set_default(
-            service_updated=None, service_state="idle", service_stale=True
+            service_updated=None,
+            service_state="idle",
+            service_stale=True,
+            status_message=None,
         )
 
         # subclass should preset the service_syncs keys to False
@@ -476,6 +479,12 @@ class ServiceCharm(CharmBase):
             self.service_update_status()
 
     @log_enter_exit()
+    def service_set_status_message(self, msg=None):
+        """Set status message that will show in service_update_status()."""
+
+        self._service_stored.status_message = msg
+
+    @log_enter_exit()
     def service_set_sync_status(self, key, status: bool):
         """Set service sync status for key.
 
@@ -558,12 +567,16 @@ class ServiceCharm(CharmBase):
         # TODO: allow for tailoring of status message
 
         if 1:
+            status_message = self._service_store.status_message
             syncs = self.service_get_syncs()
             nsynced = len([v for v in syncs.values() if v])
             nsyncs = len(syncs)
 
+            msg = f" ({status_message})" if status_message != None else ""
+
             self.unit.status = cls(
                 f"updated ({tuple(self.service_get_updated())})"
+                f"{msg}"
                 f" stale ({self.service_get_stale()})"
                 f" state ({self.service_get_state()})"
                 f" synced ({nsynced}/{nsyncs})"
@@ -573,6 +586,8 @@ class ServiceCharm(CharmBase):
         elif 0:
             self.unit.status = cls(
                 f"updated ({self.service_get_updated()})"
+                f" ({status_message})"
+                f"{msg}"
                 f" stale ({self.service_get_stale()})"
                 f" state ({self.service_get_state()})"
                 f" synced ({self.service_is_synced()})"
