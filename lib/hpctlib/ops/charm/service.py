@@ -480,7 +480,10 @@ class ServiceCharm(CharmBase):
 
     @log_enter_exit()
     def service_set_status_message(self, msg=None):
-        """Set status message that will show in service_update_status()."""
+        """Set status message that will show in service_update_status().
+
+        msg of None resets/clears the message (which would then *not*
+        be used by the service_update_status()."""
 
         self._service_stored.status_message = msg
 
