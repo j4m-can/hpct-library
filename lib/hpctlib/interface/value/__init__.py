@@ -9,6 +9,7 @@
 import ipaddress
 
 from .. import codec as _codec
+from .. import checker as _checker
 from ..base import NoValue, Value
 
 
@@ -33,6 +34,22 @@ class Float(Value):
 class Integer(Value):
     codec = _codec.Integer()
     default = 0
+
+
+class PositiveInteger(Integer):
+    checker = _checker.IntegerRange(1, None)
+
+
+class NegativeInteger(Integer):
+    checker = _checker.IntegerRange(1, None)
+
+
+class NonNegativeInteger(Integer):
+    checker = _checker.IntegerRange(0, None)
+
+
+class NonPositiveInteger(Integer):
+    checker = _checker.IntegerRange(None, 0)
 
 
 class Noop(Value):
