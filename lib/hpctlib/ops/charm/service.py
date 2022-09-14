@@ -76,14 +76,14 @@ class ServiceCharm(CharmBase):
 
         # update these using get/set
         self._service_stored.set_default(
-            service_updated=None,
-            service_state="idle",
-            service_stale=True,
+            stale=True,
+            state="idle",
             status_message=None,
+            updated=None,
         )
 
         # subclass should preset the service_syncs keys to False
-        self._service_stored.set_default(service_syncs={})
+        self._service_stored.set_default(syncs={})
 
         self.required_syncs = []
 
@@ -333,7 +333,7 @@ class ServiceCharm(CharmBase):
         Note: Do not override.
         """
 
-        return dict(self._service_stored.service_syncs)
+        return dict(self._service_stored.syncs)
 
     @log_enter_exit()
     def service_get_sync_status(self, key):
@@ -344,7 +344,7 @@ class ServiceCharm(CharmBase):
         Note: Do not override.
         """
 
-        return self._service_stored.service_syncs.get(key, False)
+        return self._service_stored.syncs.get(key, False)
 
     @log_enter_exit()
     def service_get_stale(self):
@@ -353,7 +353,7 @@ class ServiceCharm(CharmBase):
         Note: Do not override.
         """
 
-        return self._service_stored.service_stale
+        return self._service_stored.stale
 
     @log_enter_exit()
     def service_get_state(self):
@@ -362,7 +362,7 @@ class ServiceCharm(CharmBase):
         Note: Do not override.
         """
 
-        return self._service_stored.service_state
+        return self._service_stored.state
 
     @log_enter_exit()
     def service_get_updated(self):
@@ -371,7 +371,7 @@ class ServiceCharm(CharmBase):
         Note: Do not override.
         """
 
-        return self._service_stored.service_updated
+        return self._service_stored.updated
 
     @log_enter_exit()
     def service_init_sync_status(self, key, status: bool):
@@ -380,7 +380,7 @@ class ServiceCharm(CharmBase):
         Note: Do not override.
         """
 
-        if key not in self._service_stored.service_syncs:
+        if key not in self._service_stored.syncs:
             self.service_set_sync_status(key, status)
 
     @log_enter_exit()
@@ -437,7 +437,7 @@ class ServiceCharm(CharmBase):
         """
 
         timestamp = timestamp or get_timestamp()
-        self._service_stored.service_updated = [timestamp, what]
+        self._service_stored.updated = [timestamp, what]
 
     @log_enter_exit()
     def service_set_stale(self, state):
@@ -446,9 +446,9 @@ class ServiceCharm(CharmBase):
         Note: Do not override.
         """
 
-        current = self._service_stored.service_stale
+        current = self._service_stored.stale
         if current != state:
-            self._service_stored.service_stale = state
+            self._service_stored.stale = state
             self.service_set_updated("stale")
             self.service_update_status()
 
@@ -459,7 +459,7 @@ class ServiceCharm(CharmBase):
         Note: Do not override.
         """
 
-        current = self._service_stored.service_state
+        current = self._service_stored.state
         synced = self.service_is_synced()
 
         if state in ["broken", "waiting"]:
@@ -474,7 +474,7 @@ class ServiceCharm(CharmBase):
                     state = "waiting"
 
         if current != state:
-            self._service_stored.service_state = state
+            self._service_stored.state = state
             self.service_set_updated("state")
             self.service_update_status()
 
@@ -492,7 +492,7 @@ class ServiceCharm(CharmBase):
         """
 
         # TODO: limit to valid keys
-        current = self._service_stored.service_syncs.get(key)
+        current = self._service_stored.syncs.get(key)
 
         logger.debug(f"set_sync_status key ({key}) current ({status}) status ({status})")
 
@@ -502,7 +502,7 @@ class ServiceCharm(CharmBase):
             logger.debug(f"STATUS key ({key})")
 
         if current != status:
-            self._service_stored.service_syncs[key] = status
+            self._service_stored.syncs[key] = status
 
             # ensure that state is updated if necessary
             self.service_set_state(self.service_get_state())
