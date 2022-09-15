@@ -143,11 +143,17 @@ class Interface:
                 # TODO: call Value.get_doc()
                 v = getattr(self.__class__, k)
                 doc = (v.__doc__ or "").strip()
+                if v:
+                    codec_doc = v.codec and v.codec.get_doc()
+                    checker_doc = v.checker and v.checker.get_doc()
+                else:
+                    codec_doc = None
+                    checker_doc = None
                 values[k] = {
                     "type": v.__class__.__name__,
                     "module": v.__module__,
-                    "codec": v.codec.get_doc(),
-                    "checker": v.checker and v.checker.get_doc(),
+                    "codec": codec_doc,
+                    "checker": checker_doc,
                     "description": doc.strip(),
                 }
                 if 0:
