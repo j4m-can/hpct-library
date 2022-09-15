@@ -8,6 +8,7 @@
 """
 
 
+import json
 import logging
 from typing import Any
 
@@ -193,6 +194,11 @@ class Interface:
         """Return if the interface is ready."""
 
         return False
+
+    def print_doc(self, indent=2):
+        """Basic pretty print of object document."""
+
+        json.dumps(self.get_doc(), indent)
 
     def set_item(self, key, value):
         """Update a single item by key."""
