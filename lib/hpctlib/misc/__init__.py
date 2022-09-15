@@ -56,14 +56,17 @@ def log_enter_exit(msg=None, logfn=None):
                 _logfn = logfn or _app_logger.debug
 
                 try:
-                    _logfn(f"{_msg} enter")
+                    tenter = time.time()
+                    _logfn(f"{_msg} ENTER [tenter={tenter}]")
                 except:
                     pass
 
                 return func(*args, **kwargs)
             finally:
                 try:
-                    _logfn(f"{_msg} exit")
+                    texit = time.time()
+                    telapsed = texit - tenter
+                    _logfn(f"{_msg} EXIT [texit={texit}] [telapsed={telapsed}]")
                 except:
                     pass
 
