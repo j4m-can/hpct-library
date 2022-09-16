@@ -9,18 +9,19 @@
 import ipaddress
 
 from .. import codec as _codec
+from ..code import network as _network_codec
 from .. import checker
 from ..base import NoValue, Value
 from . import Integer
 
 
 class IPAddress(Value):
-    codec = _codec.IPAddress()
+    codec = _network_codec.IPAddress()
     default = ipaddress.IPv4Address("0.0.0.0")
 
 
 class IPNetwork(Value):
-    codec = _codec.IPNetwork()
+    codec = _network_codec.IPNetwork()
     default = ipaddress.IPv4Network("0.0.0.0")
 
 
