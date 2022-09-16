@@ -1,7 +1,7 @@
 # Copyright 2022 Canonical Ltd.
 # See LICENSE file for licensing details.
 #
-# hpctlib/interface/codec.py
+# hpctlib/interface/codec/__init__.py
 
 
 """Codecs perform the work of encoding and decoding according to an
@@ -33,7 +33,7 @@ class ValueError(Exception):
     pass
 
 
-class XCodec:
+class Codec:
     """Base class for codecs."""
 
     types = None
@@ -119,7 +119,7 @@ class XCodec:
         return d
 
 
-class Blob(XCodec):
+class Blob(Codec):
     """Blob (byte-string)."""
 
     types = [bytes]
@@ -137,7 +137,7 @@ class Blob(XCodec):
         return super().encode(value)
 
 
-class Boolean(XCodec):
+class Boolean(Codec):
     """Boolean: True, False."""
 
     types = [bool]
@@ -165,7 +165,7 @@ class Boolean(XCodec):
         return super().encode(value)
 
 
-class Fernet(XCodec):
+class Fernet(Codec):
     """Blob with Fernet encryption.
 
     Note: quiet about errors and values.
@@ -193,7 +193,7 @@ class Fernet(XCodec):
         return super().encode(value)
 
 
-class Float(XCodec):
+class Float(Codec):
     """Float."""
 
     types = [float]
@@ -211,7 +211,7 @@ class Float(XCodec):
         return super().encode(value)
 
 
-class Integer(XCodec):
+class Integer(Codec):
     """Integer."""
 
     codec_types = [int]
@@ -229,7 +229,7 @@ class Integer(XCodec):
         return super().encode(value)
 
 
-class IPAddress(XCodec):
+class IPAddress(Codec):
     """IP address: IPv4Address, IPv6Address."""
 
     types = [ipaddress.IPv4Address, ipaddress.IPv6Address]
@@ -247,7 +247,7 @@ class IPAddress(XCodec):
         return super().encode(value)
 
 
-class IPNetwork(XCodec):
+class IPNetwork(Codec):
     """IP network: IPv4Network, IPv6Network."""
 
     types = [ipaddress.IPv4Network, ipaddress.IPv6Network]
@@ -265,7 +265,7 @@ class IPNetwork(XCodec):
         return super().encode(value)
 
 
-class Json(XCodec):
+class Json(Codec):
     """JSON-type object.
 
     This codec works for dicts in general except for:
@@ -288,7 +288,7 @@ class Json(XCodec):
         return super().encode(value)
 
 
-class Noop(XCodec):
+class Noop(Codec):
     """Noop / no change."""
 
     def decode(self, value: str) -> Any:
@@ -304,7 +304,7 @@ class Ready(Boolean):
     pass
 
 
-class String(XCodec):
+class String(Codec):
     """String codec (noop)."""
 
     def decode(self, value: str) -> str:

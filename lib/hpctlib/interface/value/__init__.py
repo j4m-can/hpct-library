@@ -8,7 +8,7 @@
 
 import ipaddress
 
-from .. import xcodec as _codec
+from .. import codec as _codec
 from .. import checker as _checker
 from ..base import NoValue, Value
 
