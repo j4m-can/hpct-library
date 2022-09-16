@@ -8,7 +8,7 @@
 
 import ipaddress
 
-from .. import codec as _codec
+from .. import xcodec as _codec
 from .. import checker as _checker
 from ..base import NoValue, Value
 
@@ -23,7 +23,7 @@ class Blob(Value):
 
 
 class Dict(Value):
-    codec = _codec.Dict()
+    codec = _codec.Json()
 
 
 class Float(Value):

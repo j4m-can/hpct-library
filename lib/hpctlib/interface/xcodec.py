@@ -1,0 +1,314 @@
+# Copyright 2022 Canonical Ltd.
+# See LICENSE file for licensing details.
+#
+# hpctlib/interface/codec.py
+
+
+"""Codecs perform the work of encoding and decoding according to an
+encoding strategy. Encoding is integral to the codec. Codec validation
+must passgit the test of ```value == decode(encode(value))```.
+"""
+
+
+import cryptography
+import ipaddress
+import json
+import logging
+from typing import Any, Union
+
+
+NoneType = type(None)
+logger = logging.getLogger(__name__)
+
+
+class EncodingError(Exception):
+    pass
+
+
+class ParameterError(Exception):
+    pass
+
+
+class ValueError(Exception):
+    pass
+
+
+class XCodec:
+    """Base class for codecs."""
+
+    types = None
+
+    def __init__(self, *args, **kwargs):
+        self.params = {}
+
+    def __repr__(self):
+        return f"<{self.__module__}.{self.__class__.__name__})>"
+
+    def _decode(self, s: str) -> Any:
+        """Low-level decode (from string) without checks."""
+
+        return s
+
+    def _encode(self, value: Any) -> str:
+        """Low-level encode (to string) without checks."""
+
+        return value
+
+    def check_type(self, value, types, e=None):
+        """Check value type against list of types.
+
+        Args:
+            value: Value to check.
+            types: List of types to check value against.
+
+        Raises:
+            ValueError on error.
+        """
+
+        if types == None:
+            return
+        elif type(value) not in types:
+            if not e:
+                e = ValueError(f'value type "{type(value)}" not one of "{types}"')
+            raise e
+
+    def decode(self, value: str) -> Any:
+        """Decode string value to typed result.
+
+        Subclasses should override this method with proper type
+        annotations, then call super().decode().
+
+        Args:
+            value: Encoded string to decode.
+        Returns:
+            Decoded (original) form of value.
+        """
+
+        self.check_type(value, [str])
+        value = self._decode(value)
+        self.check_type(value, self.types)
+        return value
+
+    def encode(self, value) -> str:
+        """Encode typed value to a string.
+
+        Subclasses should override this method with proper type
+        annotations, then call super().encode().
+
+        Args:
+            value: Value to encode.
+        Returns:
+            Encoded form of value.
+        """
+
+        self.check_type(value, self.types)
+        value = self._encode(value)
+        self.check_type(value, [str])
+        return value
+
+    def get_doc(self) -> dict:
+        """Generate and return a dictionary describing the codec."""
+
+        doc = (self.__doc__ or "").strip()
+        d = {
+            "type": self.__class__.__name__,
+            "module": self.__module__,
+            "description": doc,
+            "params": self.params,
+        }
+        return d
+
+
+class Blob(XCodec):
+    """Blob (byte-string)."""
+
+    types = [bytes]
+
+    def _decode(self, value: str) -> bytes:
+        return value.encode("utf-8")
+
+    def _encode(self, value: bytes) -> str:
+        return value.decode("utf-8")
+
+    def decode(self, value: str) -> bytes:
+        return super().decode(value)
+
+    def encode(self, value: bytes) -> str:
+        return super().encode(value)
+
+
+class Boolean(XCodec):
+    """Boolean: True, False."""
+
+    types = [bool]
+
+    def _decode(self, value: str) -> Any:
+        match value:
+            case "1":
+                return True
+            case "0":
+                return False
+        raise ValueError()
+
+    def _encode(self, value: bool) -> str:
+        match value:
+            case True:
+                return "1"
+            case False:
+                return "0"
+        raise ValueError()
+
+    def decode(self, value: str) -> bool:
+        return super().decode(value)
+
+    def encode(self, value: bool) -> str:
+        return super().encode(value)
+
+
+class Fernet(XCodec):
+    """Blob with Fernet encryption.
+
+    Note: quiet about errors and values.
+    """
+
+    types = [bytes, None]
+
+    def __init__(self, keyfile):
+        self.params["keyfile"] = keyfile
+
+    def _decode(self, value: str) -> bytes:
+        f = cryptography.Fernet(open(self.params["keyfile"], "rt").read())
+        value = f.decrypt(value.encode("utf-8"))
+        return value
+
+    def _encode(self, value: bytes) -> str:
+        f = cryptography.Fernet(open(self.params["keyfile"], "rt").read())
+        value = f.encrypt(value).decode("utf-8")
+        return value
+
+    def decode(self, value: str) -> bytes:
+        return super().decode(value)
+
+    def encode(self, value: bytes) -> str:
+        return super().encode(value)
+
+
+class Float(XCodec):
+    """Float."""
+
+    types = [float]
+
+    def _decode(self, value: str) -> float:
+        return float(value)
+
+    def _encode(self, value: float) -> str:
+        return str(value)
+
+    def decode(self, value: str) -> float:
+        return super().decode(value)
+
+    def encode(self, value: float) -> str:
+        return super().encode(value)
+
+
+class Integer(XCodec):
+    """Integer."""
+
+    codec_types = [int]
+
+    def _decode(self, value: str) -> int:
+        return int(value)
+
+    def _encode(self, value: int) -> str:
+        return str(value)
+
+    def decode(self, value: str) -> int:
+        return super().decode(value)
+
+    def encode(self, value: int) -> str:
+        return super().encode(value)
+
+
+class IPAddress(XCodec):
+    """IP address: IPv4Address, IPv6Address."""
+
+    types = [ipaddress.IPv4Address, ipaddress.IPv6Address]
+
+    def _decode(self, value: str) -> Any:
+        return ipaddress.ip_address(value)
+
+    def _encode(self, value: Union[ipaddress.IPv4Address, ipaddress.IPv6Address]) -> str:
+        return str(value)
+
+    def decode(self, value: str) -> Union[ipaddress.IPv4Address, ipaddress.IPv6Address]:
+        return super().decode(value)
+
+    def encode(self, value: Union[ipaddress.IPv4Address, ipaddress.IPv6Address]) -> str:
+        return super().encode(value)
+
+
+class IPNetwork(XCodec):
+    """IP network: IPv4Network, IPv6Network."""
+
+    types = [ipaddress.IPv4Network, ipaddress.IPv6Network]
+
+    def _decode(self, value: str) -> Any:
+        return ipaddress.ip_network(value)
+
+    def _encode(self, value: Union[ipaddress.IPv4Network, ipaddress.IPv6Network]) -> str:
+        return str(value)
+
+    def decode(self, value: str) -> Union[ipaddress.IPv4Network, ipaddress.IPv6Network]:
+        return super().decode(value)
+
+    def encode(self, value: Union[ipaddress.IPv4Network, ipaddress.IPv6Network]) -> str:
+        return super().encode(value)
+
+
+class Json(XCodec):
+    """JSON-type object.
+
+    This codec works for dicts in general except for:
+    * basic types
+    * non-string keys
+    """
+
+    types = [dict]
+
+    def _decode(self, value: str) -> dict:
+        return json.loads(value)
+
+    def _encode(self, value: dict) -> str:
+        return json.dumps(value)
+
+    def decode(self, value: str) -> dict:
+        return super().decode(value)
+
+    def encode(self, value: dict) -> str:
+        return super().encode(value)
+
+
+class Noop(XCodec):
+    """Noop / no change."""
+
+    def decode(self, value: str) -> Any:
+        return value
+
+    def encode(self, value: Any) -> str:
+        return value
+
+
+class Ready(Boolean):
+    """Convert ready status: True, False."""
+
+    pass
+
+
+class String(XCodec):
+    """String codec (noop)."""
+
+    def decode(self, value: str) -> str:
+        return value
+
+    def encode(self, value: str) -> str:
+        return value
