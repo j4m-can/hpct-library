@@ -431,14 +431,6 @@ class ServiceCharm(CharmBase):
         # self.service_set_updated("reinstall")
 
     @log_enter_exit()
-    def service_set_updated(self, what, timestamp=None):
-        """Set service updated timestamp.
-
-        Note: Do not override.
-        """
-
-        timestamp = timestamp or get_timestamp()
-        self._service_stored.updated = [timestamp, what]
     def service_set_required_syncs(self, keys):
         self.required_syncs = keys[:]
 
@@ -515,6 +507,16 @@ class ServiceCharm(CharmBase):
 
             self.service_set_updated("sync")
             self.service_update_status()
+
+    @log_enter_exit()
+    def service_set_updated(self, what, timestamp=None):
+        """Set service updated timestamp.
+
+        Note: Do not override.
+        """
+
+        timestamp = timestamp or get_timestamp()
+        self._service_stored.updated = [timestamp, what]
 
     @log_enter_exit()
     def service_start(self, event):
