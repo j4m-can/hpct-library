@@ -16,6 +16,10 @@ from typing import Any
 logger = logging.getLogger(__name__)
 
 
+class AccessError(Exception):
+    pass
+
+
 class NoValue:
     def __str__(self):
         return "no value"
@@ -42,15 +46,19 @@ class Value:
     codec = None
     default = NoValue
 
-    def __init__(self, default=NoValue, checker=None, codec=None):
+    def __init__(self, default=NoValue, checker=None, codec=None, **kwargs):
         self.checker = self.checker if checker == None else checker
         self.codec = self.codec if codec == None else codec
         self.default = self.default if default == NoValue else default
+        self.access = kwargs.get("access", "rw")
 
     def __get__(self, owner, objtype=None):
         """Return value (from owner)."""
         if owner == None:
             return self
+
+        if "r" not in self.access:
+            raise AccessError("value not readable")
 
         value = owner._get(self.name, NoValue)
         if value == NoValue:
@@ -70,6 +78,9 @@ class Value:
         if value == NoValue:
             return
 
+        if "w" not in self.access:
+            raise AccessError("value not writable")
+
         if self.checker:
             self.checker.check(value)
 
@@ -84,13 +95,6 @@ class Value:
         # self.name = f"_{owner.__class__.__name__}_store_{name}"
         # self.name = f"_{owner.__name__}_store_{name}"
         self.name = name
-
-
-class ReadOnlyValue(Value):
-    """When target is read-only."""
-
-    def __set__(self, owner, value):
-        raise AttributeError("this setting is read only")
 
 
 class Interface:
