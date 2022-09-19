@@ -139,7 +139,7 @@ class NodeCharm(ServiceCharm):
         # TODO: allow for tailoring of status message
 
         if 1:
-            status_message = self._service_store.status_message
+            status_message = self._service_stored.status_message
             syncs = self.service_get_syncs()
             nsynced = len([v for v in syncs.values() if v])
             nsyncs = len(syncs)
