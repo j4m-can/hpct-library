@@ -85,6 +85,7 @@ class ServiceCharm(CharmBase):
         # subclass should preset the service_syncs keys to False
         self._service_stored.set_default(syncs={})
 
+        # subclasses should use service_set_required_syncs() to set
         self.required_syncs = []
 
     #
@@ -438,6 +439,8 @@ class ServiceCharm(CharmBase):
 
         timestamp = timestamp or get_timestamp()
         self._service_stored.updated = [timestamp, what]
+    def service_set_required_syncs(self, keys):
+        self.required_syncs = keys[:]
 
     @log_enter_exit()
     def service_set_stale(self, state):
