@@ -82,7 +82,7 @@ class ServiceCharm(CharmBase):
             updated=None,
         )
 
-        # subclass should preset the service_syncs keys to False
+        # subclasses should use service_init_sync() to initialize
         self._service_stored.set_default(syncs={})
 
         # subclasses should use service_set_required_syncs() to set
