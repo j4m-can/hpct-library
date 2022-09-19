@@ -9,7 +9,7 @@
 import ipaddress
 
 from .. import codec as _codec
-from ..code import network as _network_codec
+from ..codec import network as _network_codec
 from .. import checker
 from ..base import NoValue, Value
 from . import Integer

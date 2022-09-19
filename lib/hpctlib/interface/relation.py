@@ -11,9 +11,10 @@
 import logging
 from typing import Any, Union
 
-from . import codec
 from . import interface_registry
-from .base import Value, Interface, NoValue, ReadOnlyValue, SuperInterface
+from .base import Value, Interface, NoValue, SuperInterface
+from .value import Blob, Ready
+from .value.network import IPAddress, IPNetwork
 
 
 logger = logging.getLogger(__name__)
@@ -141,13 +142,13 @@ class AppBucketInterface(BucketInterface):
 class AppConfigBucketInterface(AppBucketInterface):
     """ """
 
-    config = Value(codec.Blob(), None)
+    config = Blob()
 
 
 class AppSecureConfigBucketInterface(AppBucketInterface):
     """ """
 
-    config = Value(codec.Blob(), None)
+    config = Blob()
 
 
 class UnitBucketInterface(BucketInterface):
@@ -159,9 +160,9 @@ class UnitBucketInterface(BucketInterface):
     Note: All unit relation bucket interfaces should subclass this!
     """
 
-    egress_subnets = ReadOnlyValue(codec.IPNetwork(), None)
-    ingress_address = ReadOnlyValue(codec.IPAddress(), None)
-    private_address = ReadOnlyValue(codec.IPAddress(), None)
+    egress_subnets = IPNetwork(access="r")
+    ingress_address = IPAddress(access="r")
+    private_address = IPAddress(access="r")
 
 
 #
@@ -171,7 +172,7 @@ class UnitBucketInterface(BucketInterface):
 
 class ReadyBucketInterface(AppBucketInterface):
 
-    status = Value(codec.Ready(), False)
+    status = Ready(False)
 
 
 class RelationSuperInterface(SuperInterface):
