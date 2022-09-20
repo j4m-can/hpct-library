@@ -91,7 +91,7 @@ def service_forced_update(what=None):
                 qualname = getattr(func, "__qualname__", "na")
                 # TODO: tweak this to trim qualname if necessary
                 _what = what or f"[{qualname}]"
-                self = getattr(func, "__self__")
+                self = args[0] if args else None
                 # cls = getattr(self, "__class__")
                 # verify cls is subclass of CharmBase!
 
