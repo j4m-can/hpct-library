@@ -10,32 +10,20 @@ principal charm for a "node".
 
 
 import logging
-import time
 
-from ops.charm import CharmBase
-from ops.framework import StoredState
-from ops.model import ActiveStatus, BlockedStatus, MaintenanceStatus, WaitingStatus
-
-from ...misc import get_methodname, get_timestamp, log_enter_exit
+from ...misc import log_enter_exit
 from .service import ServiceCharm
 
 logger = logging.getLogger(__name__)
 
 
 class NodeCharm(ServiceCharm):
-    """Provide support for nodes."""
+    """Provide support for nodes.
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.framework.observe(self.on.config_changed, self._on_config_changed)
-        # self.framework.observe(self.on.start, self._on_start)
-        # self.framework.observe(self.on.stop, self._on_stop)
-        self.framework.observe(self.on.update_status, self._on_update_status)
-
-        # self.service_init_sync_status(key, boolean)
-
-        self.required_syncs = []
+    Subclasses should call setup_subordinate_relations_and_sync()
+    with a list of relation names that are required for this operator
+    to "active".
+    """
 
     #
     # registered handlers
@@ -44,124 +32,40 @@ class NodeCharm(ServiceCharm):
     #
 
     @log_enter_exit()
-    def _on_config_changed(self, event):
-        """'on-config-changed' handler.
+    def _on_subordinate_relation_joined(self, event):
+        """Update associated sync."""
 
-        Note: Do not override.
-        """
-
-        self._service_on_config_changed(event)
-        self.service_set_updated("config")
-        self.service_update_status()
+        relname = event.relation.name
+        self.service_set_sync_status(relname, True)
 
     @log_enter_exit()
-    def _on_start(self, event):
-        """'start' handler.
+    def _on_subordinate_relation_changed(self, event):
+        """Update associated sync."""
 
-        Note: Do not override.
-        """
+        relname = event.relation.name
+        self.service_set_sync_status(relname, True)
 
-        self.service_enable(event)
-        self.service_start(event)
+    def _on_subordinate_relation_departed(self, event):
+        """Update associated sync."""
 
-    @log_enter_exit()
-    def _on_stop(self, event):
-        """'stop' handler.
+        relname = event.relation.name
+        self.service_set_sync_status(relname, False)
 
-        Note: Do not override.
-        """
+    def setup_subordinate_relations_and_syncs(self, relnames):
+        """Set up relation handlers and syncs for subordinates."""
 
-        self.service_stop(event)
-        self.service_disable(event)
-        self.service_update_status()
-
-    @log_enter_exit()
-    def _on_update_status(self, event):
-        """'update-status' handler.
-
-        Note: Do not override.
-        """
-        self.service_update_status()
-
-    #
-    # May be overriden
-    #
-    # Note: These methods should *not* be called directly. Instead,
-    #   call the service_* methods.
-    #
-
-    @log_enter_exit()
-    def _service_start(self, event):
-        """Start service.
-
-        Called by service_start().
-        """
-
-        pass
-
-    @log_enter_exit()
-    def _service_stop(self, event, force):
-        """Stop service.
-
-        Called by service_stop().
-        """
-
-        pass
-
-    @log_enter_exit()
-    def _service_sync(self, event, force=False):
-        """Sync all.
-
-        Called by service_sync().
-        """
-
-        pass
-
-    @log_enter_exit()
-    def service_update_status(self):
-        """Update status.
-
-        Note: Do not override.
-        """
-
-        state = self.service_get_state()
-        if state in ["broken"]:
-            cls = BlockedStatus
-        elif state in ["idle", "enabled"]:
-            cls = MaintenanceStatus
-        elif state in ["waiting"]:
-            cls = WaitingStatus
-        elif state in ["started"]:
-            cls = ActiveStatus
-        else:
-            cls = MaintenanceStatus
-
-        # TODO: allow for tailoring of status message
-
-        if 1:
-            status_message = self._service_stored.status_message
-            syncs = self.service_get_syncs()
-            nsynced = len([v for v in syncs.values() if v])
-            nsyncs = len(syncs)
-
-            msg = f" ({status_message})" if status_message != None else ""
-
-            self.unit.status = cls(
-                f"updated ({tuple(self.service_get_updated())})"
-                f"{msg}"
-                f" stale ({self.service_get_stale()})"
-                f" state ({self.service_get_state()})"
-                f" synced ({nsynced}/{nsyncs})"
-                f" syncs ({syncs})"
+        required_syncs = []
+        for relname in relnames:
+            urelname = relname.replace("-", "_")
+            self.framework.observe(
+                getattr(self.on, f"{urelname}_relation_joined"),
+                self._on_subordinate_relation_joined,
             )
-
-        elif 0:
-            self.unit.status = cls(
-                f"updated ({self.service_get_updated()})"
-                f" ({status_message})"
-                f"{msg}"
-                f" stale ({self.service_get_stale()})"
-                f" state ({self.service_get_state()})"
-                f" synced ({self.service_is_synced()})"
-                f" syncs ({self.service_get_syncs()})"
+            self.framework.observe(
+                getattr(self.on, f"{urelname}_relation_departed"),
+                self._on_subordinate_relation_departed,
             )
+            required_syncs.append(relname)
+            self.service_init_sync_status(relname, False)
+
+        self.service_set_required_syncs(required_syncs)
