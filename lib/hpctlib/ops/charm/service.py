@@ -16,7 +16,7 @@ from ops.charm import CharmBase
 from ops.framework import StoredState
 from ops.model import ActiveStatus, BlockedStatus, MaintenanceStatus, WaitingStatus
 
-from ...misc import get_methodname, get_timestamp, log_enter_exit
+from ...misc import get_methodname, get_timestamp, log_enter_exit, service_forced_update
 
 
 logger = logging.getLogger(__name__)
@@ -95,6 +95,7 @@ class ServiceCharm(CharmBase):
     #
 
     @log_enter_exit()
+    @service_forced_update("config-changed")
     def _on_config_changed(self, event):
         """'on-config-changed' handler.
 
@@ -102,8 +103,6 @@ class ServiceCharm(CharmBase):
         """
 
         self._service_on_config_changed(event)
-        self.service_set_updated("config")
-        self.service_update_status()
 
     @log_enter_exit()
     def _on_install(self, event):
@@ -148,6 +147,7 @@ class ServiceCharm(CharmBase):
     #
 
     @log_enter_exit()
+    @service_forced_update("restart-action")
     def _on_service_restart_action(self, event):
         """'service-restart' action handler.
 
@@ -162,7 +162,6 @@ class ServiceCharm(CharmBase):
             sync = False
 
         self.service_restart(force, sync)
-        self.service_update_status()
 
     @log_enter_exit()
     def _on_service_set_sync_status_action(self, event):
@@ -205,6 +204,7 @@ class ServiceCharm(CharmBase):
         self.service_stop(event, force)
 
     @log_enter_exit()
+    @service_forced_update("sync-action")
     def _on_service_sync_action(self, event):
         """'service-sync' action handler.
 
@@ -217,7 +217,6 @@ class ServiceCharm(CharmBase):
             force = False
 
         self.service_sync(event, force)
-        self.service_update_status()
 
     #
     # May be overriden
@@ -294,6 +293,7 @@ class ServiceCharm(CharmBase):
     #
 
     @log_enter_exit()
+    @service_forced_update("disable")
     def service_disable(self, event, force=False):
         """Disable service(s).
 
@@ -308,9 +308,8 @@ class ServiceCharm(CharmBase):
             except Exception as e:
                 logger.debug(f"[{get_methodname(self)} e ({e})")
 
-        self.service_update_status()
-
     @log_enter_exit()
+    @service_forced_update("enable")
     def service_enable(self, event, force=False):
         """Enable service(s).
 
@@ -324,8 +323,6 @@ class ServiceCharm(CharmBase):
                 self.service_set_updated("enable")
             except Exception as e:
                 logger.debug(f"[{get_methodname(self)} e ({e})")
-
-        self.service_update_status()
 
     @log_enter_exit()
     def service_get_syncs(self):
@@ -385,6 +382,7 @@ class ServiceCharm(CharmBase):
             self.service_set_sync_status(key, status)
 
     @log_enter_exit()
+    @service_forced_update("install")
     def service_install(self, event):
         """Install.
 
@@ -392,8 +390,6 @@ class ServiceCharm(CharmBase):
         """
 
         self._service_install(event)
-        self.service_set_updated("install")
-        self.service_update_status()
 
     @log_enter_exit()
     def service_is_running(self):
