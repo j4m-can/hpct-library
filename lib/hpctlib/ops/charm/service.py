@@ -60,6 +60,8 @@ class ServiceCharm(CharmBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self._service_sync_handlers = {}
+
         self.framework.observe(self.on.config_changed, self._on_config_changed)
         self.framework.observe(self.on.install, self._on_install)
         self.framework.observe(self.on.start, self._on_start)
@@ -372,7 +374,7 @@ class ServiceCharm(CharmBase):
         return self._service_stored.updated
 
     @log_enter_exit()
-    def service_init_sync_status(self, key, status: bool):
+    def service_init_sync_status(self, key, status: bool, handler=None):
         """Initialize sync status for key that does not yet exist.
 
         Note: Do not override.
@@ -380,6 +382,7 @@ class ServiceCharm(CharmBase):
 
         if key not in self._service_stored.syncs:
             self.service_set_sync_status(key, status)
+        self._service_sync_handlers[key] = handler
 
     @log_enter_exit()
     @service_forced_update("install")
@@ -479,7 +482,7 @@ class ServiceCharm(CharmBase):
         self._service_stored.status_message = msg
 
     @log_enter_exit()
-    def service_set_sync_status(self, key, status: bool):
+    def service_set_sync_status(self, key, status: bool, force=False):
         """Set service sync status for key.
 
         Note: Do not override.
@@ -495,8 +498,15 @@ class ServiceCharm(CharmBase):
 
             logger.debug(f"STATUS key ({key})")
 
-        if current != status:
+        if current != status or force:
             self._service_stored.syncs[key] = status
+            handler = self._service_sync_handlers.get(key)
+
+            if handler:
+                try:
+                    handler(key, status)
+                except Exception as e:
+                    logger.debug(f"service sync handler failed ({e})")
 
             # ensure that state is updated if necessary
             self.service_set_state(self.service_get_state())
