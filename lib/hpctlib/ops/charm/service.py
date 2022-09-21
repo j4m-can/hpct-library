@@ -60,6 +60,7 @@ class ServiceCharm(CharmBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self._service_required_syncs = []
         self._service_sync_handlers = {}
 
         self.framework.observe(self.on.config_changed, self._on_config_changed)
@@ -82,9 +83,6 @@ class ServiceCharm(CharmBase):
             syncs={},
             updated=None,
         )
-
-        # subclasses should use service_set_required_syncs() to set
-        self.required_syncs = []
 
     #
     # registered handlers
@@ -409,7 +407,7 @@ class ServiceCharm(CharmBase):
         Note: Do not override.
         """
 
-        for name in self.required_syncs:
+        for name in self._service_required_syncs:
             if not self.service_get_sync(name):
                 return False
         return True
@@ -427,7 +425,11 @@ class ServiceCharm(CharmBase):
 
     @log_enter_exit()
     def service_set_required_syncs(self, keys):
-        self.required_syncs = keys[:]
+        """Set list of required syncs.
+
+        Note: Do not override."""
+
+        self._service_required_syncs = keys[:]
 
     @log_enter_exit()
     def service_set_stale(self, state):
