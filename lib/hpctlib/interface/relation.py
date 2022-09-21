@@ -170,7 +170,14 @@ class UnitBucketInterface(BucketInterface):
 #
 
 
-class ReadyBucketInterface(AppBucketInterface):
+class AppReadyBucketInterface(AppBucketInterface):
+    """Provides status that the application is "ready"."""
+
+    status = Ready(False)
+
+
+class UnitReadyBucketInterface(UnitBucketInterface):
+    """Provides status that the unit is "ready"."""
 
     status = Ready(False)
 
@@ -310,8 +317,23 @@ class AppReadyRelationSuperInterface(RelationSuperInterface):
         self.interface_classes[("provider", "app")] = ReadyBucketInterface
 
 
+class SubordinateReadyRelationSuperInterface(RelationSuperInterface):
+    """The relation between the principal and subordinate operators.
+    The "ready" status, set by the *requirer*/subordinate indicates
+    the the subordinate is ready.
+
+    The relation is typically labelled "<x>-ready" and the interface
+    is labelled "unit-ready". See the registry for "relation-unit-ready"."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.interface_classes[("requirer", "unit")] = UnitReadyBucketInterface
+
+
 # register interfaces
 
 interface_registry.register("relation-app-config", AppConfigRelationSuperInterface)
 interface_registry.register("relation-app-secure-config", AppSecureConfigRelationSuperInterface)
 interface_registry.register("relation-app-ready", AppReadyRelationSuperInterface)
+interface_registry.register("relation-subordinate-ready", SubordinateReadyRelationSuperInterface)
