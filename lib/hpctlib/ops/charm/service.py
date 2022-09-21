@@ -69,9 +69,7 @@ class ServiceCharm(CharmBase):
         self.framework.observe(self.on.update_status, self._on_update_status)
 
         self.framework.observe(self.on.service_restart_action, self._on_service_restart_action)
-        self.framework.observe(
-            self.on.service_set_sync_status_action, self._on_service_set_sync_status_action
-        )
+        self.framework.observe(self.on.service_set_sync_action, self._on_service_set_sync_action)
         self.framework.observe(self.on.service_start_action, self._on_service_start_action)
         self.framework.observe(self.on.service_stop_action, self._on_service_stop_action)
         self.framework.observe(self.on.service_sync_action, self._on_service_sync_action)
@@ -166,7 +164,7 @@ class ServiceCharm(CharmBase):
         self.service_restart(force, sync)
 
     @log_enter_exit()
-    def _on_service_set_sync_status_action(self, event):
+    def _on_service_set_sync_action(self, event):
         """'service-set-sync-status' action handler.
 
         Note: Do not override.
@@ -176,8 +174,8 @@ class ServiceCharm(CharmBase):
             key = event.params["key"]
             status = event.params["status"]
 
-            if self.service_get_sync_status(key) != None:
-                self.service_set_sync_status(key, status)
+            if self.service_get_sync(key) != None:
+                self.service_set_sync(key, status)
                 self.service_update_status()
         except Exception as e:
             logger.debug(f"[{get_methodname(self)} e ({e})")
@@ -336,7 +334,7 @@ class ServiceCharm(CharmBase):
         return dict(self._service_stored.syncs)
 
     @log_enter_exit()
-    def service_get_sync_status(self, key):
+    def service_get_sync(self, key):
         """Return service sync status for key.
 
         Should use objects.
@@ -374,14 +372,14 @@ class ServiceCharm(CharmBase):
         return self._service_stored.updated
 
     @log_enter_exit()
-    def service_init_sync_status(self, key, status: bool, handler=None):
+    def service_init_sync(self, key, status: bool, handler=None):
         """Initialize sync status for key that does not yet exist.
 
         Note: Do not override.
         """
 
         if key not in self._service_stored.syncs:
-            self.service_set_sync_status(key, status)
+            self.service_set_sync(key, status)
         self._service_sync_handlers[key] = handler
 
     @log_enter_exit()
@@ -414,7 +412,7 @@ class ServiceCharm(CharmBase):
         """
 
         for name in self.required_syncs:
-            if not self.service_get_sync_status(name):
+            if not self.service_get_sync(name):
                 return False
         return True
 
@@ -482,7 +480,7 @@ class ServiceCharm(CharmBase):
         self._service_stored.status_message = msg
 
     @log_enter_exit()
-    def service_set_sync_status(self, key, status: bool, force=False):
+    def service_set_sync(self, key, status: bool, force=False):
         """Set service sync status for key.
 
         Note: Do not override.
@@ -491,7 +489,7 @@ class ServiceCharm(CharmBase):
         # TODO: limit to valid keys
         current = self._service_stored.syncs.get(key)
 
-        logger.debug(f"set_sync_status key ({key}) current ({status}) status ({status})")
+        logger.debug(f"set_sync key ({key}) current ({status}) status ({status})")
 
         if current == True and status == False:
             import traceback
