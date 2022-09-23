@@ -10,7 +10,6 @@ for service charms that offer common service-oriented functionality.
 
 
 import logging
-import time
 
 from ops.charm import CharmBase
 from ops.framework import StoredState
