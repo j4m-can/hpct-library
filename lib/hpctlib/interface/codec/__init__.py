@@ -10,7 +10,6 @@ must passgit the test of ```value == decode(encode(value))```.
 """
 
 
-import cryptography
 import json
 import logging
 from typing import Any
@@ -161,34 +160,6 @@ class Boolean(Codec):
         return super().decode(value)
 
     def encode(self, value: bool) -> str:
-        return super().encode(value)
-
-
-class Fernet(Codec):
-    """Blob with Fernet encryption.
-
-    Note: quiet about errors and values.
-    """
-
-    types = [bytes, None]
-
-    def __init__(self, keyfile):
-        self.params["keyfile"] = keyfile
-
-    def _decode(self, value: str) -> bytes:
-        f = cryptography.Fernet(open(self.params["keyfile"], "rt").read())
-        value = f.decrypt(value.encode("utf-8"))
-        return value
-
-    def _encode(self, value: bytes) -> str:
-        f = cryptography.Fernet(open(self.params["keyfile"], "rt").read())
-        value = f.encrypt(value).decode("utf-8")
-        return value
-
-    def decode(self, value: str) -> bytes:
-        return super().decode(value)
-
-    def encode(self, value: bytes) -> str:
         return super().encode(value)
 
 
