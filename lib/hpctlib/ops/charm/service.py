@@ -84,6 +84,9 @@ class ServiceCharm(CharmBase):
             updated=None,
         )
 
+        # update here, at least; hopefully in a later method, too
+        self.service_set_updated("init")
+
     #
     # registered handlers
     #
