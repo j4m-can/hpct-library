@@ -36,20 +36,20 @@ class NodeCharm(ServiceCharm):
         """Update associated sync."""
 
         relname = event.relation.name
-        self.service_set_sync_status(relname, True)
+        self.service_set_sync(relname, True)
 
     @log_enter_exit()
     def _on_subordinate_relation_changed(self, event):
         """Update associated sync."""
 
         relname = event.relation.name
-        self.service_set_sync_status(relname, True)
+        self.service_set_sync(relname, True)
 
     def _on_subordinate_relation_departed(self, event):
         """Update associated sync."""
 
         relname = event.relation.name
-        self.service_set_sync_status(relname, False)
+        self.service_set_sync(relname, False)
 
     def setup_subordinate_relations_and_syncs(self, relnames):
         """Set up relation handlers and syncs for subordinates."""
@@ -66,6 +66,6 @@ class NodeCharm(ServiceCharm):
                 self._on_subordinate_relation_departed,
             )
             required_syncs.append(relname)
-            self.service_init_sync_status(relname, False)
+            self.service_init_sync(relname, False)
 
         self.service_set_required_syncs(required_syncs)
