@@ -10,6 +10,7 @@ for service charms that offer common service-oriented functionality.
 
 
 import logging
+from typing import Union
 
 from ops.charm import CharmBase
 from ops.framework import StoredState
@@ -479,14 +480,20 @@ class ServiceCharm(CharmBase):
         self._service_stored.status_message = msg
 
     @log_enter_exit()
-    def service_set_sync(self, key, status: bool, force=False):
+    def service_set_sync(self, key, status: Union[bool, None] = None, force=False):
         """Set service sync status for key.
+
+        To trigger handler with current sync value, set status to None or just
+        specify a key.
 
         Note: Do not override.
         """
 
         # TODO: limit to valid keys
         current = self._service_stored.syncs.get(key)
+        if status == None:
+            status = current
+            force = True
 
         logger.debug(f"set_sync key ({key}) current ({status}) status ({status})")
 
