@@ -40,6 +40,8 @@ class Value:
     The codec encodes (to string) and decodes (from string).
 
     The default is return when there is no value set.
+
+    The access is zero or combined "r"ead and "w"rite.
     """
 
     checker = None
@@ -88,12 +90,7 @@ class Value:
         owner._set(self.name, value)
 
     def __set_name__(self, owner, name):
-        """Set name (mangle to put in owner).
-
-        TODO: is this needed?
-        """
-        # self.name = f"_{owner.__class__.__name__}_store_{name}"
-        # self.name = f"_{owner.__name__}_store_{name}"
+        """Set name (mangle to put in owner)."""
         self.name = name
 
 
@@ -121,8 +118,9 @@ class Interface:
         return f"<{self.__module__}.{self.__class__.__name__} keys ({self.get_keys()})>"
 
     def __contains__(self, key):
-        o = getattr(self.__class__, key)
-        return issubclass(o, self._basecls)
+        """Support for "has"."""
+
+        return issubclass(getattr(self.__class__, key), self._basecls)
 
     def _get(self, key, default=None):
         """Accessor for the interface store."""
@@ -141,6 +139,7 @@ class Interface:
 
     def get_doc(self, show_values=False):
         """Return json object about interface."""
+
         try:
             values = {}
             doc = (self.__class__.__doc__ or "").strip()
@@ -159,12 +158,8 @@ class Interface:
                     values[k] = v.get_doc()
                 else:
                     doc = (v.__doc__ or "").strip()
-                    if v:
-                        codec_doc = v.codec and v.codec.get_doc()
-                        checker_doc = v.checker and v.checker.get_doc()
-                    else:
-                        codec_doc = None
-                        checker_doc = None
+                    codec_doc = v.codec.get_doc() if v and v.codec else None
+                    checker_doc = v.checker.get_doc() if v and v.checker else None
                     values[k] = {
                         "type": v.__class__.__name__,
                         "module": v.__module__,
@@ -172,44 +167,32 @@ class Interface:
                         "checker": checker_doc,
                         "description": doc.strip(),
                     }
-                    if 0:
-                        d = {
-                            "type": v.codec.__class__.__name__,
-                            "module": v.codec.__module__,
-                            "description": doc,
-                            "params": self.params,
-                        }
 
                     if show_values:
                         values[k]["value"] = getattr(self, k)
-
         except Exception as e:
             raise
 
         return j
 
     def get_fqkey(self, key):
-        """Return fully qualified key."""
+        """Return fully qualified key. Support for ProxyInterface dotted notation."""
 
-        if self._prefix:
-            key = f"{self._prefix}.{key}"
-        return key
+        return key if not self._prefix else f"{self._prefix}.{key}"
 
     def get_keys(self):
         """Get keys of all descriptors."""
 
         # TODO: _bucketkey does not show up
-        basecls = self._basecls
         return [
             k
             for k in dir(self)
-            if hasattr(self.__class__, k) and isinstance(getattr(self.__class__, k), basecls)
+            if hasattr(self.__class__, k) and isinstance(getattr(self.__class__, k), self._basecls)
         ]
 
     def get_items(self):
         """Get descriptor items."""
 
-        basecls = self._basecls
         return [(k, getattr(self, k)) for k in self.get_keys()]
 
     def is_ready(self):
@@ -230,7 +213,7 @@ class Interface:
     def update(self, d):
         """Update multiple items from a dict."""
 
-        for k, v in d:
+        for k, v in d.items():
             self.set_item(k, v)
 
 
