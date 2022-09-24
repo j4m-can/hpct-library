@@ -105,10 +105,17 @@ class Interface:
     descriptors (from Value).
     """
 
-    _basecls = Value
-
     def __init__(self, *args, **kwargs):
+        self._basecls = (Value, Interface)
+        self._prefix = None
         self._store = {}
+
+        # patch in "_store" for ProxyInterface
+        for k in dir(self):
+            v = getattr(self, k)
+            if isinstance(v, ProxyInterface):
+                v._prefix = k
+                v._store = self._store
 
     def __repr__(self):
         return f"<{self.__module__}.{self.__class__.__name__} keys ({self.get_keys()})>"
@@ -120,17 +127,17 @@ class Interface:
     def _get(self, key, default=None):
         """Accessor for the interface store."""
 
-        return self._store.get(key, default)
+        return self._store.get(self.get_fqkey(key), default)
 
     def _set(self, key, value):
         """Accessor for the interface store."""
 
-        self._store[key] = value
+        self._store[self.get_fqkey(key)] = value
 
     def clear(self, key):
         """Clear/delete key from storage."""
 
-        del self._store[key]
+        del self._store[self.get_fqkey(key)]
 
     def get_doc(self, show_values=False):
         """Return json object about interface."""
@@ -147,35 +154,46 @@ class Interface:
             for k in self.get_keys():
                 # TODO: call Value.get_doc()
                 v = getattr(self.__class__, k)
-                doc = (v.__doc__ or "").strip()
-                if v:
-                    codec_doc = v.codec and v.codec.get_doc()
-                    checker_doc = v.checker and v.checker.get_doc()
-                else:
-                    codec_doc = None
-                    checker_doc = None
-                values[k] = {
-                    "type": v.__class__.__name__,
-                    "module": v.__module__,
-                    "codec": codec_doc,
-                    "checker": checker_doc,
-                    "description": doc.strip(),
-                }
-                if 0:
-                    d = {
-                        "type": v.codec.__class__.__name__,
-                        "module": v.codec.__module__,
-                        "description": doc,
-                        "params": self.params,
-                    }
 
-                if show_values:
-                    values[k]["value"] = getattr(self, k)
+                if isinstance(v, Interface):
+                    values[k] = v.get_doc()
+                else:
+                    doc = (v.__doc__ or "").strip()
+                    if v:
+                        codec_doc = v.codec and v.codec.get_doc()
+                        checker_doc = v.checker and v.checker.get_doc()
+                    else:
+                        codec_doc = None
+                        checker_doc = None
+                    values[k] = {
+                        "type": v.__class__.__name__,
+                        "module": v.__module__,
+                        "codec": codec_doc,
+                        "checker": checker_doc,
+                        "description": doc.strip(),
+                    }
+                    if 0:
+                        d = {
+                            "type": v.codec.__class__.__name__,
+                            "module": v.codec.__module__,
+                            "description": doc,
+                            "params": self.params,
+                        }
+
+                    if show_values:
+                        values[k]["value"] = getattr(self, k)
 
         except Exception as e:
             raise
 
         return j
+
+    def get_fqkey(self, key):
+        """Return fully qualified key."""
+
+        if self._prefix:
+            key = f"{self._prefix}.{key}"
+        return key
 
     def get_keys(self):
         """Get keys of all descriptors."""
@@ -214,6 +232,22 @@ class Interface:
 
         for k, v in d:
             self.set_item(k, v)
+
+
+class ProxyInterface(Interface):
+    """Interface which uses the backing Interface._store and key
+    prefix support.
+    """
+
+    pass
+
+
+class StructInterface(ProxyInterface):
+    """Alias for ProxyInterface to clearly indicate Struct-style
+    usage.
+    """
+
+    pass
 
 
 class SuperInterface:
