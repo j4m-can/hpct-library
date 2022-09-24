@@ -10,35 +10,75 @@ import sys
 
 sys.path.insert(0, os.path.realpath("../../lib"))
 
-from hpctlib.interface.base import Interface, Value, test
-from hpctlib.interface import codec, checker
+from hpctlib.interface.base import Interface, StructInterface, test
+from hpctlib.interface import checker
+from hpctlib.interface.value import Boolean, Dict, Float, Integer, PositiveInteger, String
+from hpctlib.interface.value.network import IPAddress, IPNetwork
 
 
 logger = logging.getLogger(__name__)
 
 
 class TestInterface(Interface):
-    xboolean = Value(codec.Boolean(), False)
-    xfloat = Value(codec.Float(), 0.0)
-    xfloatrange = Value(codec.Float(), 0.0, checker.FloatRange(-100.3, 20.93))
-    xinteger = Value(codec.Integer(), 0)
-    xintegerrange = Value(codec.Integer(), 0, checker.IntegerRange(100, 204))
-    ipaddress = Value(codec.IPAddress())
-    ipnetwork = Value(codec.IPNetwork())
+    xboolean = Boolean(False)
+    xfloat = Float(0.0)
+    xfloatrange = Float(0.0, checker.FloatRange(-100.3, 20.93))
+    xinteger = Integer(0)
+    xintegerrange = Integer(0, checker.IntegerRange(100, 204))
+    xpositive_integer = PositiveInteger(0)
+    ipaddress = IPAddress("0.0.0.0")
+    ipnetwork = IPNetwork("0.0.0.0/32")
+    xdict = Dict({"x": 101})
+
+
+class TestInterface2(Interface):
+    class X(StructInterface):
+        a = Integer(1)
+
+    x = X()
+    y = String("hi")
 
 
 if __name__ == "__main__":
-    iface = TestInterface()
+    if 0:
+        iface = TestInterface()
 
-    test(iface, "xboolean", True)
-    test(iface, "xboolean", "hello")
-    test(iface, "xboolean", 123)
+        test(iface, "xboolean", True)
+        test(iface, "xboolean", "hello")
+        test(iface, "xboolean", 123)
 
-    test(iface, "xinteger", 123)
-    test(iface, "xintegerrange", 123)
+        test(iface, "xinteger", 123)
+        test(iface, "xintegerrange", 123)
 
-    test(iface, "xfloat", 12.3)
-    test(iface, "xfloatrange", 123.23)
-    test(iface, "xfloatrange", -23.3)
+        test(iface, "xfloat", 12.3)
+        test(iface, "xfloatrange", 123.23)
+        test(iface, "xfloatrange", -23.3)
+        test(iface, "xdict", {"x": 102})
 
-    print(json.dumps(iface.get_doc(), indent=2))
+        print("-----")
+        iface.xdict["x"] = 99
+        print(iface.xdict)
+        print("-----")
+        d = iface.xdict
+        d["x"] = 99
+        iface.xdict = d
+        print(f"d ({d})")
+        print(f"iface.xdict ({iface.xdict})")
+        print("-----")
+
+        print(json.dumps(iface.get_doc(), indent=2))
+
+    if 1:
+        iface = TestInterface2()
+        print(f"before x.a ({iface.x.a}) y ({iface.y})")
+        iface.x.a = 2
+        iface.y = "bye"
+
+        print(f"before x.a ({iface.x.a}) y ({iface.y})")
+
+        print(f"dir(iface) ({dir(iface)})")
+        print(f"iface.__dict__ ({iface.__dict__})")
+        print(f"iface._store ({iface._store})")
+        print(f"iface.x._store ({iface.x._store})")
+
+        print(json.dumps(iface.get_doc(), indent=2))
