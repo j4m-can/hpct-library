@@ -107,12 +107,11 @@ class Interface:
         self._prefix = None
         self._store = {}
 
-        # patch in "_store" for ProxyInterface
+        # patch in "_store" for sub Interface
         for k in dir(self):
-            v = getattr(self, k)
-            if isinstance(v, ProxyInterface):
-                v._prefix = k
-                v._store = self._store
+            iface = getattr(self, k)
+            if isinstance(iface, Interface):
+                self._patch_subinterface(k, iface)
 
     def __repr__(self):
         return f"<{self.__module__}.{self.__class__.__name__} keys ({self.get_keys()})>"
@@ -126,6 +125,10 @@ class Interface:
         """Accessor for the interface store."""
 
         return self._store.get(self.get_fqkey(key), default)
+
+    def _patch_subinterface(self, k, iface):
+        iface._prefix = k
+        iface._store = self._store
 
     def _set(self, key, value):
         """Accessor for the interface store."""
@@ -176,7 +179,7 @@ class Interface:
         return j
 
     def get_fqkey(self, key):
-        """Return fully qualified key. Support for ProxyInterface dotted notation."""
+        """Return fully qualified key. Support for sub-Interface dotted notation."""
 
         return key if not self._prefix else f"{self._prefix}.{key}"
 
@@ -199,6 +202,19 @@ class Interface:
         """Return if the interface is ready."""
 
         return False
+
+    def mount(self, key, subiface, force=False):
+        """Dynamically mount/attach a sub-interface at an anchor.
+
+        Note: Added as an instance member *not* a class member.
+
+        Q. Should this be added as a class member?"""
+
+        if not hasattr(self, key) or force:
+            if not isinstance(subiface, (Interface,)):
+                raise Exception("interface must be a Interface")
+            self._patch_subinterface(key, subiface)
+            setattr(self, key, subiface)
 
     def print_doc(self, indent=2):
         """Basic pretty print of object document."""
