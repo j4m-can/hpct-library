@@ -13,7 +13,7 @@ general enough to be reused.
 
 
 import re
-from typing import Union
+from typing import Any, List, Union
 from urllib.parse import urlparse
 
 
@@ -104,6 +104,19 @@ class FloatRange(Checker):
         if hi != None and value > hi:
             raise CheckError("value is above range")
         return True
+
+
+class OneOf(Checker):
+    """Check for value to match one of a list of values."""
+
+    def __init__(self, values: List[Any]):
+        super().__init__()
+        if type(values) != list:
+            raise CheckError("values must be a list")
+        self.params["values"] = values
+
+    def check(self, value: Any):
+        return value in self.params["values"]
 
 
 class Regexp(Checker):
