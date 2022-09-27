@@ -31,9 +31,11 @@ class TestInterface(Interface):
     xdict = Dict({"x": 101})
 
 
+class X(StructInterface):
+    a = Integer(1)
+
+
 class TestInterface2(Interface):
-    class X(StructInterface):
-        a = Integer(1)
 
     x = X()
     y = String("hi")
@@ -73,9 +75,12 @@ if __name__ == "__main__":
         print(f"before x.a ({iface.x.a}) y ({iface.y})")
         iface.x.a = 2
         iface.y = "bye"
+        iface.mount("xx", X())
+        iface.xx.a = 123
 
-        print(f"before x.a ({iface.x.a}) y ({iface.y})")
+        print(f"after x.a ({iface.x.a}) y ({iface.y})")
 
+        print(f"iface.x ({iface.x})")
         print(f"dir(iface) ({dir(iface)})")
         print(f"iface.__dict__ ({iface.__dict__})")
         print(f"iface._store ({iface._store})")
