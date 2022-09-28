@@ -135,10 +135,12 @@ class Interface:
 
         self._store[self.get_fqkey(key)] = value
 
-    def clear(self, key):
-        """Clear/delete key from storage."""
+    def clear(self, key=None):
+        """Clear one or all interface keys from storage."""
 
-        del self._store[self.get_fqkey(key)]
+        keys = [key] if key != None else self.get_keys()
+        for key in keys:
+            del self._store[self.get_fqkey(key)]
 
     def get_doc(self, show_values=False):
         """Return json object about interface."""
@@ -184,14 +186,31 @@ class Interface:
         return key if not self._prefix else f"{self._prefix}.{key}"
 
     def get_keys(self):
-        """Get keys of all descriptors."""
+        """Get keys of all descriptors for this interface."""
 
-        # TODO: _bucketkey does not show up
-        return [
-            k
-            for k in dir(self)
-            if hasattr(self.__class__, k) and isinstance(getattr(self.__class__, k), self._basecls)
-        ]
+        prefix = f"{self._prefix}."
+        prefixlen = len(prefix)
+        keys = []
+        for k in dir(self):
+            if (
+                hasattr(self.__class__, k)
+                and isinstance(getattr(self.__class__, k), self._basecls)
+                and k.startswith(prefix)
+            ):
+                if "." not in k:
+                    keys.append(k[prefixlen:])
+        return keys
+
+    def get_all_keys(self):
+        """Get all keys."""
+
+        keys = []
+        for k in dir(self):
+            if hasattr(self.__class__, k) and isinstance(
+                getattr(self.__class__, k), self._basecls
+            ):
+                keys.append(k)
+        return keys
 
     def get_items(self):
         """Get descriptor items."""
