@@ -127,7 +127,8 @@ class Interface:
         return self._store.get(self.get_fqkey(key), default)
 
     def _patch_subinterface(self, k, iface):
-        iface._prefix = k
+        prefix = "" if not self._prefix else f"{self._prefix}."
+        iface._prefix = f"{prefix}{k}"
         iface._store = self._store
 
     def _set(self, key, value):
@@ -188,7 +189,7 @@ class Interface:
     def get_keys(self):
         """Get keys of all descriptors for this interface."""
 
-        prefix = f"{self._prefix}."
+        prefix = "" if not self._prefix else f"{self._prefix}."
         prefixlen = len(prefix)
         keys = []
         for k in dir(self):
