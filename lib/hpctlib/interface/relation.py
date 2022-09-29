@@ -42,14 +42,18 @@ class MockRelation:
 class BucketInterface(Interface):
     """Interface for relation bucket storage."""
 
-    _basecls = Value
-
-    def __init__(self, charm, relname: str, bucketkey: str, relation_id: Union[int, None] = None):
+    def __init__(
+        self, charm, relname: str, bucketkey: str, relation_id: Union[int, None] = None, mock=False
+    ):
         self._charm = charm
         self._relname = relname
         self._bucketkey = bucketkey
         self._relation_id = relation_id
         self._mock = False
+        if mock:
+            self.set_mock()
+
+        super().__init__()
 
     def _get(self, key: str, default=None):
         """Accessor (for raw data) to the relation store."""
@@ -194,6 +198,8 @@ class RelationSuperInterface(SuperInterface):
     """
 
     def __init__(self, charm, relname: str, role=None):
+        super().__init__()
+
         self.charm = charm
         self.relname = relname
         self.role = role
