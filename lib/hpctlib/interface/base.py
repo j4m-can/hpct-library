@@ -104,14 +104,9 @@ class Interface:
 
     def __init__(self, *args, **kwargs):
         self._basecls = (Value, Interface)
+        self._baseiface = self
         self._prefix = None
         self._store = {}
-
-        # patch subinterfaces
-        for k in dir(self):
-            iface = getattr(self, k)
-            if isinstance(iface, Interface):
-                self._patch_subinterface(k, iface)
 
     def __repr__(self):
         return f"<{self.__module__}.{self.__class__.__name__} keys ({self.get_keys()})>"
@@ -127,15 +122,13 @@ class Interface:
         return issubclass(obj, self._basecls)
 
     def _get(self, key, default=None):
-        """Accessor for the interface store."""
+        iface = self if self._baseiface == None else self._baseiface
+        return iface._store_get(key, default)
 
-        return self._store.get(self.get_fqkey(key), default)
-
-    @staticmethod
-    def _get_keys(iface, fq=False, depth=0):
+    def _get_keys(self, iface, fq=False, depth=0):
         """Collect keys from an interface.
 
-        The keys of an inteface are either from the class or the
+        The keys of an interface are either from the class or the
         instance.
 
         Args:
@@ -152,6 +145,10 @@ class Interface:
             else:
                 obj = getattr(iface, k)
 
+            if obj in [self, self._baseiface]:
+                # skip self (from self._baseiface)
+                continue
+
             if isinstance(obj, Value):
                 keys.append(key)
             elif isinstance(obj, Interface):
@@ -161,22 +158,44 @@ class Interface:
                     keys.append(key)
         return keys
 
-    def _patch_subinterface(self, k, iface):
-        prefix = "" if not self._prefix else f"{self._prefix}."
-        iface._prefix = f"{prefix}{k}"
-        iface._store = self._store
-
     def _set(self, key, value):
         """Accessor for the interface store."""
 
+        iface = self if self._baseiface == None else self._baseiface
+        iface._store_set(key, value)
+
+    def _set_base(self, baseiface=None):
+        """Set baseiface for all subinterfaces."""
+
+        self._baseiface = baseiface or self
+        prefix = "" if not self._prefix else f"{self._prefix}."
+
+        for k in dir(self):
+            iface = getattr(self, k)
+            if isinstance(iface, Interface):
+                if iface not in [self, self._baseiface]:
+                    iface._prefix = f"{prefix}{k}"
+                    print("setting prefix ({iface._prefix}) for iface ({iface})")
+                    iface._set_base(self._baseiface)
+
+    def _store_clear(self, key):
+        keys = [key] if key != None else self.get_keys()
+        for key in keys:
+            del self._store[self.get_fqkey(key)]
+
+    def _store_get(self, key, default=None):
+        """Accessor for the interface store."""
+
+        return self._store.get(self.get_fqkey(key), default)
+
+    def _store_set(self, key, value):
         self._store[self.get_fqkey(key)] = value
 
     def clear(self, key=None):
         """Clear one or all interface keys from storage."""
 
-        keys = [key] if key != None else self.get_keys()
-        for key in keys:
-            del self._store[self.get_fqkey(key)]
+        iface = self if self._baseiface == None else self._baseiface
+        iface.__clear(key)
 
     def get_doc(self, show_values=False):
         """Return json object about interface."""
@@ -273,20 +292,14 @@ class Interface:
             self.set_item(k, v)
 
 
-class ProxyInterface(Interface):
-    """Interface which uses the backing Interface._store and key
-    prefix support.
-    """
+class BaseInterface(Interface):
+    """Special interface which provides a substitute store for subinterfaces.
+    There should only be one BaseInteface in an Interface object with embedded
+    interfaces, namely, the most "base" one."""
 
-    pass
-
-
-class StructInterface(ProxyInterface):
-    """Alias for ProxyInterface to clearly indicate Struct-style
-    usage.
-    """
-
-    pass
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+        self._set_base()
 
 
 class SuperInterface:

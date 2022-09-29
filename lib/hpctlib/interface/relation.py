@@ -12,7 +12,7 @@ import logging
 from typing import Any, Union
 
 from . import interface_registry
-from .base import Value, Interface, NoValue, SuperInterface
+from .base import BaseInterface, Interface, NoValue, SuperInterface
 from .value import Blob, Ready
 from .value.network import IPAddress, IPNetwork
 
@@ -39,11 +39,18 @@ class MockRelation:
         }
 
 
-class BucketInterface(Interface):
+class BucketInterface(BaseInterface):
     """Interface for relation bucket storage."""
 
     def __init__(
-        self, charm, relname: str, bucketkey: str, relation_id: Union[int, None] = None, mock=False
+        self,
+        charm,
+        relname: str,
+        bucketkey: str,
+        relation_id: Union[int, None] = None,
+        mock=False,
+        *args,
+        **kwargs
     ):
         self._charm = charm
         self._relname = relname
@@ -53,42 +60,39 @@ class BucketInterface(Interface):
         if mock:
             self.set_mock()
 
-        super().__init__()
+        super().__init__(*args, **kwargs)
 
-    def _get(self, key: str, default=None):
+    def _store_clear(self, key):
+        """Clear/delete key from storage (bucket).
+
+        According to `RelationDataContent.__delitem__()`.
+        """
+
+        self._set(self.get_fqkey(key), "")
+
+    def _store_get(self, key: str, default=None):
         """Accessor (for raw data) to the relation store."""
 
-        key = key.replace("_", "-")
+        key = self.get_fqkey(key.replace("_", "-"))
 
         bucketkey = self._bucketkey
         relation = self.get_relation()
 
-        key = self.get_fqkey(key)
         if relation:
             value = relation.data[bucketkey].get(key, NoValue)
             if value == NoValue:
                 value = default
             return value
 
-    def _set(self, key: str, value: Any):
+    def _store_set(self, key: str, value: Any):
         """Accessor (for raw data) to the relation store."""
 
-        key = key.replace("_", "-")
+        key = self.get_fqkey(key.replace("_", "-"))
 
         bucketkey = self._bucketkey
 
-        key = self.get_fqkey(key)
         for relation in self.get_relations():
             relation.data[bucketkey].update({key: value})
-
-    def clear(self, key):
-        """Clear/delete key from storage (bucket).
-
-        According to `RelationDataContent.__delitem__()`.
-        """
-
-        key = self.get_fqkey(key)
-        self._set(key, "")
 
     def get_relation(self, relation_id=None):
         """Return relation associated with registered relation name."""
@@ -301,8 +305,9 @@ class RelationSuperInterface(SuperInterface):
                 rolekey = "peer"
 
         interface_cls = self.get_interface_class(rolekey, buckettype)
+        iface = interface_cls(self.charm, self.relname, bucketkey, relation_id)
 
-        return interface_cls(self.charm, self.relname, bucketkey, relation_id)
+        return iface
 
 
 class AppConfigRelationSuperInterface(RelationSuperInterface):
