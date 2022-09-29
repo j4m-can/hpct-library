@@ -63,6 +63,7 @@ class BucketInterface(Interface):
         bucketkey = self._bucketkey
         relation = self.get_relation()
 
+        key = self.get_fqkey(key)
         if relation:
             value = relation.data[bucketkey].get(key, NoValue)
             if value == NoValue:
@@ -76,6 +77,7 @@ class BucketInterface(Interface):
 
         bucketkey = self._bucketkey
 
+        key = self.get_fqkey(key)
         for relation in self.get_relations():
             relation.data[bucketkey].update({key: value})
 
@@ -85,6 +87,7 @@ class BucketInterface(Interface):
         According to `RelationDataContent.__delitem__()`.
         """
 
+        key = self.get_fqkey(key)
         self._set(key, "")
 
     def get_relation(self, relation_id=None):
