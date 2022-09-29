@@ -107,7 +107,7 @@ class Interface:
         self._prefix = None
         self._store = {}
 
-        # patch in "_store" for sub Interface
+        # patch subinterfaces
         for k in dir(self):
             iface = getattr(self, k)
             if isinstance(iface, Interface):
@@ -118,13 +118,48 @@ class Interface:
 
     def __contains__(self, key):
         """Support for "has"."""
-
-        return issubclass(getattr(self.__class__, key), self._basecls)
+        if hasattr(self.__class__, key):
+            obj = getattr(self.__class__, key)
+        elif hasattr(self, key):
+            obj = getattr(self, key)
+        else:
+            return False
+        return issubclass(obj, self._basecls)
 
     def _get(self, key, default=None):
         """Accessor for the interface store."""
 
         return self._store.get(self.get_fqkey(key), default)
+
+    @staticmethod
+    def _get_keys(iface, fq=False, depth=0):
+        """Collect keys from an interface.
+
+        The keys of an inteface are either from the class or the
+        instance.
+
+        Args:
+            fq: bool    record fully qualified key name if True
+            depth: int  depth of search"""
+
+        keys = []
+        for k in dir(iface):
+            key = k if not fq else iface.get_fqkey(k)
+
+            if hasattr(iface.__class__, k):
+                # catch descriptors
+                obj = getattr(iface.__class__, k)
+            else:
+                obj = getattr(iface, k)
+
+            if isinstance(obj, Value):
+                keys.append(key)
+            elif isinstance(obj, Interface):
+                if depth > 0:
+                    keys.extend(iface._get_keys(obj, depth - 1))
+                else:
+                    keys.append(key)
+        return keys
 
     def _patch_subinterface(self, k, iface):
         prefix = "" if not self._prefix else f"{self._prefix}."
@@ -187,36 +222,21 @@ class Interface:
         return key if not self._prefix else f"{self._prefix}.{key}"
 
     def get_keys(self):
-        """Get keys of all descriptors for this interface."""
+        """Get keys of all descriptors for this interface.
 
-        prefix = "" if not self._prefix else f"{self._prefix}."
-        prefixlen = len(prefix)
-        keys = []
-        for k in dir(self):
-            if (
-                hasattr(self.__class__, k)
-                and isinstance(getattr(self.__class__, k), self._basecls)
-                and k.startswith(prefix)
-            ):
-                if "." not in k:
-                    keys.append(k[prefixlen:])
-        return keys
+        The keys refer to class and instance members not what is in store."""
+
+        return self._get_keys(self)
 
     def get_all_keys(self):
-        """Get all keys."""
+        """Get all keys. Uses dotted notation for subinterfaces."""
 
-        keys = []
-        for k in dir(self):
-            if hasattr(self.__class__, k) and isinstance(
-                getattr(self.__class__, k), self._basecls
-            ):
-                keys.append(k)
-        return keys
+        return self._get_keys(self, fq=True, depth=100)
 
     def get_items(self):
         """Get descriptor items."""
 
-        return [(k, getattr(self, k)) for k in self.get_keys()]
+        return [(k, getattr(self, k)) for k in self._get_keys(self)]
 
     def is_ready(self):
         """Return if the interface is ready."""
