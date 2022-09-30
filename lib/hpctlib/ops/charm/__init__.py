@@ -1,9 +1,13 @@
+# Copyright 2022 Canonical Ltd.
+# See LICENSE file for licensing details.
 #
 # hpctlib/ops/charm/__init__.py
-#
 
 """Support for operators.
 """
+
+from .debugger import DebuggerCharm
+from .service import ServiceCharm
 
 
 def set_base_charm(basecharm):
